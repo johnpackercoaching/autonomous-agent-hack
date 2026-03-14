@@ -1,0 +1,130 @@
+/* Design Tokens - Shared across app and reports */
+/* Single source of truth for colors, fonts, and spacing */
+
+:root {
+  /* Ink colors (text) */
+  --color-ink: #1a1a1a;
+  --color-ink-light: #374151;
+  --color-ink-muted: #6b7280;
+
+  /* Accent colors */
+  --color-accent: #1a5490;
+  --color-accent-light: #2d5a8c;
+
+  /* Background colors */
+  --color-bg: #fafafa;
+  --color-bg-subtle: #f9fafb;
+  --color-bg-hover: #f3f4f6;
+  --color-bg-white: #fff;
+  --color-background: #fff; /* Alias for component compatibility */
+
+  /* Borders and lines */
+  --color-line: #e5e7eb;
+
+  /* Status colors */
+  --color-caution: #9a6700;
+  --color-caution-hover: #7a5200;
+  --color-error: #dc2626;
+  --color-error-bg: rgba(220, 38, 38, 0.1);
+  --color-success: #10b981;
+  --color-success-dark: #059669;
+
+  /* Pipeline status colors */
+  --status-researching: #3b82f6;
+  --status-considering: #8b5cf6;
+  --status-preparing: #f59e0b;
+  --status-applied: #10b981;
+  --status-interviewing: var(--color-accent);
+  --status-offer: #059669;
+  --status-terminal: var(--color-ink-muted);
+
+  /* Surface and shadows */
+  --color-surface: #fff;
+  --color-shadow: rgba(0, 0, 0, 0.08);
+  --color-shadow-strong: rgba(0, 0, 0, 0.15);
+  --color-header-bg: rgba(255, 255, 255, 0.92);
+
+  /* Accent variations */
+  --color-accent-4: rgba(30, 63, 104, 0.04);
+  --color-accent-6: rgba(30, 63, 104, 0.06);
+  --color-accent-10: rgba(30, 63, 104, 0.1);
+
+  /* Animation timing */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 0.15s;
+  --duration-normal: 0.2s;
+  --duration-slow: 0.3s;
+  --duration-base: 0.3s; /* deprecated, use --duration-slow */
+
+  /* Border radius scale */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  /* Z-index layers */
+  --z-base: 1;
+  --z-elevated: 10;
+  --z-dropdown: 50;
+  --z-sticky: 100;
+  --z-overlay: 200;
+  --z-sidebar: 300;
+  --z-modal: 1000;
+  --z-toast: 9999;
+
+  /* Accent glow colors (impeccable.style) */
+  --color-accent-glow: oklch(60% 0.25 350);
+  --color-accent-glow-dim: oklch(60% 0.25 350 / 0.15);
+
+  /* Typography */
+  --font-serif: 'Georgia', 'Times New Roman', serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Layout */
+  --header-height: 4.25rem;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-ink: #e5e7eb;
+    --color-ink-light: #9ca3af;
+    --color-ink-muted: #6b7280;
+    --color-accent: #60a5fa;
+    --color-accent-light: #93c5fd;
+    --color-bg: #111827;
+    --color-bg-subtle: #1f2937;
+    --color-bg-hover: #374151;
+    --color-bg-white: #1f2937;
+    --color-background: #1f2937; /* Alias for component compatibility */
+    --color-line: #374151;
+    --color-caution: #fbbf24;
+    --color-caution-hover: #d97706;
+    --color-surface: #1f2937;
+    --color-shadow: rgba(0, 0, 0, 0.3);
+    --color-shadow-strong: rgba(0, 0, 0, 0.4);
+    --color-accent-4: rgba(96, 165, 250, 0.08);
+    --color-accent-6: rgba(96, 165, 250, 0.12);
+    --color-accent-10: rgba(96, 165, 250, 0.18);
+    --color-header-bg: rgba(17, 24, 39, 0.92);
+
+    /* Status colors for dark mode */
+    --status-researching: #60a5fa;
+    --status-considering: #a78bfa;
+    --status-preparing: #fbbf24;
+    --status-applied: #34d399;
+    --status-interviewing: var(--color-accent);
+    --status-offer: #10b981;
+    --status-terminal: var(--color-ink-muted);
+
+    /* Error/success colors for dark mode */
+    --color-error: #f87171;
+    --color-error-bg: rgba(248, 113, 113, 0.15);
+    --color-success: #34d399;
+    --color-success-dark: #10b981;
+  }
+}

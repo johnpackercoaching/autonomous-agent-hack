@@ -1,0 +1,325 @@
+/* Agents Page - Hackathon Agent Team Visualization */
+
+.agents-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+/* Header */
+.agents-header {
+  margin-bottom: 2rem;
+}
+
+.agents-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-ink, #1a1a1a);
+  margin: 0 0 0.35rem 0;
+  line-height: 1.25;
+}
+
+.agents-subtitle {
+  font-size: 0.95rem;
+  color: var(--color-ink-muted, #6b7280);
+  margin: 0 0 1rem 0;
+}
+
+/* Stats bar */
+.agents-stats {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.agents-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-ink-light, #374151);
+}
+
+.agents-stat__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full, 9999px);
+}
+
+.agents-stat__dot--active {
+  background: #22c55e;
+}
+
+.agents-stat__dot--idle {
+  background: #f0a000;
+}
+
+/* Section */
+.agents-section {
+  margin-bottom: 1rem;
+  border: 1px solid var(--color-line, #e5e7eb);
+  border-radius: var(--radius-lg, 8px);
+  overflow: hidden;
+  background: var(--color-surface, #fff);
+}
+
+.agents-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--duration-fast, 0.15s) ease;
+}
+
+.agents-section__header:hover {
+  background: var(--color-bg-hover, rgba(0, 0, 0, 0.03));
+}
+
+.agents-section__header:focus-visible {
+  outline: 2px solid var(--color-accent, #1a5490);
+  outline-offset: -2px;
+}
+
+.agents-section__title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.agents-section__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* Section color coding via left border */
+.agents-section--system .agents-section__title {
+  color: var(--color-ink, #1a1a1a);
+}
+
+.agents-section--pattern-a .agents-section__title {
+  color: #71b2f4;
+}
+
+.agents-section--pattern-b .agents-section__title {
+  color: #f0a000;
+}
+
+.agents-section--pattern-c .agents-section__title {
+  color: #ff3369;
+}
+
+.agents-section--pattern-d .agents-section__title {
+  color: #8b5cf6;
+}
+
+.agents-section--system {
+  border-left: 3px solid var(--color-ink-muted, #6b7280);
+}
+
+.agents-section--pattern-a {
+  border-left: 3px solid #71b2f4;
+}
+
+.agents-section--pattern-b {
+  border-left: 3px solid #f0a000;
+}
+
+.agents-section--pattern-c {
+  border-left: 3px solid #ff3369;
+}
+
+.agents-section--pattern-d {
+  border-left: 3px solid #8b5cf6;
+}
+
+.agents-section__subtitle {
+  font-size: 0.78rem;
+  color: var(--color-ink-muted, #6b7280);
+  font-weight: 400;
+}
+
+.agents-section__chevron {
+  color: var(--color-ink-muted, #6b7280);
+  transition: transform var(--duration-slow, 0.3s) ease;
+  flex-shrink: 0;
+}
+
+.agents-section__chevron--collapsed {
+  transform: rotate(-90deg);
+}
+
+/* Agent Grid */
+.agents-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  border-top: 1px solid var(--color-line, #e5e7eb);
+}
+
+/* Agent Card */
+.agent-card {
+  display: grid;
+  grid-template-columns: 40px 1fr auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 1.25rem;
+  border-bottom: 1px solid var(--color-line, #e5e7eb);
+  transition: background var(--duration-fast, 0.15s) ease;
+}
+
+.agent-card:last-child {
+  border-bottom: none;
+}
+
+.agent-card:hover {
+  background: var(--color-bg-hover, rgba(0, 0, 0, 0.03));
+}
+
+/* Avatar */
+.agent-card__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-lg, 8px);
+  background: var(--color-accent-6, rgba(30, 63, 104, 0.06));
+  color: var(--color-accent, #1a5490);
+  font-size: 0.78rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Pattern-specific avatar colors */
+.agents-section--pattern-a .agent-card__avatar {
+  background: rgba(113, 178, 244, 0.12);
+  color: #71b2f4;
+}
+
+.agents-section--pattern-b .agent-card__avatar {
+  background: rgba(240, 160, 0, 0.12);
+  color: #f0a000;
+}
+
+.agents-section--pattern-c .agent-card__avatar {
+  background: rgba(255, 51, 105, 0.12);
+  color: #ff3369;
+}
+
+.agents-section--pattern-d .agent-card__avatar {
+  background: rgba(139, 92, 246, 0.12);
+  color: #8b5cf6;
+}
+
+/* Card Body */
+.agent-card__body {
+  min-width: 0;
+}
+
+.agent-card__name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-ink, #1a1a1a);
+  margin: 0 0 0.1rem 0;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-card__role {
+  font-size: 0.75rem;
+  color: var(--color-ink-muted, #6b7280);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.agent-card__team {
+  opacity: 0.7;
+}
+
+/* Status Indicator */
+.agent-card__status {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.agent-card__status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full, 9999px);
+  transition: background var(--duration-slow, 0.3s) ease;
+}
+
+.agent-card__status-dot--idle {
+  background: #f0a000;
+}
+
+.agent-card__status-dot--active {
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+}
+
+.agent-card__status-dot--debating {
+  background: #71b2f4;
+  box-shadow: 0 0 6px rgba(113, 178, 244, 0.4);
+}
+
+.agent-card__status-dot--planning {
+  background: #8b5cf6;
+  box-shadow: 0 0 6px rgba(139, 92, 246, 0.4);
+}
+
+.agent-card__status-dot--error {
+  background: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+}
+
+.agent-card__status-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-ink-muted, #6b7280);
+}
+
+/* Time */
+.agent-card__time {
+  font-size: 0.7rem;
+  color: var(--color-ink-muted, #6b7280);
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 60px;
+  text-align: right;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .agents-page {
+    padding: 1rem 0;
+  }
+
+  .agent-card {
+    grid-template-columns: 36px 1fr auto;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .agent-card__time {
+    display: none;
+  }
+
+  .agents-section__title {
+    font-size: 0.85rem;
+  }
+}

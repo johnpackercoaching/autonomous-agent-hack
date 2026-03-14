@@ -4,7 +4,19 @@ import { rtdb } from '../firebase';
 import './TeamsPage.css';
 
 // ── Types ──
-type Phase = 'debate' | 'plan' | 'execute' | 'proof' | 'idle';
+type Phase =
+  | 'debate'
+  | 'research'
+  | 'informed_debate'
+  | 'decisions'
+  | 'mockups'
+  | 'test_mockups'
+  | 'debate_mockups'
+  | 'execute_decision'
+  | 'jp_rocks_execution'
+  | 'review'
+  | 'judge_presentation'
+  | 'idle';
 
 interface ActivityEvent {
   id: string;
@@ -24,122 +36,119 @@ interface TeamRTDB {
 interface TeamDef {
   id: string;
   name: string;
-  pattern: string;
-  patternLabel: string;
+  jpRocksTeam: number;
   colorClass: string;
-  agents: { id: string; role: string }[];
+  agents: { id: string; role: string; persona: string }[];
   coordinator: string;
 }
 
-// ── 10 Teams ──
+// ── 10 Teams with Architect / Builder / Strategist ──
 const TEAMS: TeamDef[] = [
   {
-    id: 'T01', name: 'Team 01', pattern: 'A', patternLabel: 'Expander / Challenger / Integrator',
-    colorClass: 'team-card--pattern-a',
+    id: 'T01', name: 'First Light', jpRocksTeam: 3, colorClass: 'team-card--t01',
     agents: [
-      { id: 'hack-t01-expander', role: 'Expander' },
-      { id: 'hack-t01-challenger', role: 'Challenger' },
-      { id: 'hack-t01-integrator', role: 'Integrator' },
+      { id: 'hack-t01-architect', role: 'Architect', persona: 'Feynman' },
+      { id: 'hack-t01-builder', role: 'Builder', persona: 'Dieter Rams' },
+      { id: 'hack-t01-strategist', role: 'Strategist', persona: 'Sun Tzu' },
     ],
-    coordinator: 'hack-t01-integrator',
+    coordinator: 'hack-t01-coord',
   },
   {
-    id: 'T02', name: 'Team 02', pattern: 'A', patternLabel: 'Expander / Challenger / Integrator',
-    colorClass: 'team-card--pattern-a',
+    id: 'T02', name: 'Grain', jpRocksTeam: 4, colorClass: 'team-card--t02',
     agents: [
-      { id: 'hack-t02-expander', role: 'Expander' },
-      { id: 'hack-t02-challenger', role: 'Challenger' },
-      { id: 'hack-t02-integrator', role: 'Integrator' },
+      { id: 'hack-t02-architect', role: 'Architect', persona: 'Charles Eames' },
+      { id: 'hack-t02-builder', role: 'Builder', persona: 'Isamu Noguchi' },
+      { id: 'hack-t02-strategist', role: 'Strategist', persona: 'Nassim Taleb' },
     ],
-    coordinator: 'hack-t02-integrator',
+    coordinator: 'hack-t02-coord',
   },
   {
-    id: 'T03', name: 'Team 03', pattern: 'A', patternLabel: 'Expander / Challenger / Integrator',
-    colorClass: 'team-card--pattern-a',
+    id: 'T03', name: 'Terraform', jpRocksTeam: 5, colorClass: 'team-card--t03',
     agents: [
-      { id: 'hack-t03-expander', role: 'Expander' },
-      { id: 'hack-t03-challenger', role: 'Challenger' },
-      { id: 'hack-t03-integrator', role: 'Integrator' },
+      { id: 'hack-t03-architect', role: 'Architect', persona: 'Donella Meadows' },
+      { id: 'hack-t03-builder', role: 'Builder', persona: 'Wangari Maathai' },
+      { id: 'hack-t03-strategist', role: 'Strategist', persona: 'Andy Grove' },
     ],
-    coordinator: 'hack-t03-integrator',
+    coordinator: 'hack-t03-coord',
   },
   {
-    id: 'T04', name: 'Team 04', pattern: 'B', patternLabel: 'Advocate / Builder / Skeptic',
-    colorClass: 'team-card--pattern-b',
+    id: 'T04', name: 'Parallax', jpRocksTeam: 6, colorClass: 'team-card--t04',
     agents: [
-      { id: 'hack-t04-advocate', role: 'Advocate' },
-      { id: 'hack-t04-builder', role: 'Builder' },
-      { id: 'hack-t04-skeptic', role: 'Skeptic' },
+      { id: 'hack-t04-architect', role: 'Architect', persona: 'Ada Lovelace' },
+      { id: 'hack-t04-builder', role: 'Builder', persona: 'Don Norman' },
+      { id: 'hack-t04-strategist', role: 'Strategist', persona: 'Coco Chanel' },
     ],
-    coordinator: 'hack-t04-builder',
+    coordinator: 'hack-t04-coord',
   },
   {
-    id: 'T05', name: 'Team 05', pattern: 'B', patternLabel: 'Advocate / Builder / Skeptic',
-    colorClass: 'team-card--pattern-b',
+    id: 'T05', name: 'Signal Fire', jpRocksTeam: 7, colorClass: 'team-card--t05',
     agents: [
-      { id: 'hack-t05-advocate', role: 'Advocate' },
-      { id: 'hack-t05-builder', role: 'Builder' },
-      { id: 'hack-t05-skeptic', role: 'Skeptic' },
+      { id: 'hack-t05-architect', role: 'Architect', persona: 'Marie Curie' },
+      { id: 'hack-t05-builder', role: 'Builder', persona: 'Buckminster Fuller' },
+      { id: 'hack-t05-strategist', role: 'Strategist', persona: 'Ed Catmull' },
     ],
-    coordinator: 'hack-t05-builder',
+    coordinator: 'hack-t05-coord',
   },
   {
-    id: 'T06', name: 'Team 06', pattern: 'B', patternLabel: 'Advocate / Builder / Skeptic',
-    colorClass: 'team-card--pattern-b',
+    id: 'T06', name: 'Groundwork', jpRocksTeam: 8, colorClass: 'team-card--t06',
     agents: [
-      { id: 'hack-t06-advocate', role: 'Advocate' },
-      { id: 'hack-t06-builder', role: 'Builder' },
-      { id: 'hack-t06-skeptic', role: 'Skeptic' },
+      { id: 'hack-t06-architect', role: 'Architect', persona: 'Jane Jacobs' },
+      { id: 'hack-t06-builder', role: 'Builder', persona: 'Aristotle' },
+      { id: 'hack-t06-strategist', role: 'Strategist', persona: 'Harriet Tubman' },
     ],
-    coordinator: 'hack-t06-builder',
+    coordinator: 'hack-t06-coord',
   },
   {
-    id: 'T07', name: 'Team 07', pattern: 'C', patternLabel: 'Proponent / Red Team / Arbiter',
-    colorClass: 'team-card--pattern-c',
+    id: 'T07', name: 'Threshold', jpRocksTeam: 9, colorClass: 'team-card--t07',
     agents: [
-      { id: 'hack-t07-proponent', role: 'Proponent' },
-      { id: 'hack-t07-redteam', role: 'Red Team' },
-      { id: 'hack-t07-arbiter', role: 'Arbiter' },
+      { id: 'hack-t07-architect', role: 'Architect', persona: 'Claude Shannon' },
+      { id: 'hack-t07-builder', role: 'Builder', persona: 'Konosuke Matsushita' },
+      { id: 'hack-t07-strategist', role: 'Strategist', persona: 'Virgil Abloh' },
     ],
-    coordinator: 'hack-t07-arbiter',
+    coordinator: 'hack-t07-coord',
   },
   {
-    id: 'T08', name: 'Team 08', pattern: 'C', patternLabel: 'Proponent / Red Team / Arbiter',
-    colorClass: 'team-card--pattern-c',
+    id: 'T08', name: 'Undertow', jpRocksTeam: 10, colorClass: 'team-card--t08',
     agents: [
-      { id: 'hack-t08-proponent', role: 'Proponent' },
-      { id: 'hack-t08-redteam', role: 'Red Team' },
-      { id: 'hack-t08-arbiter', role: 'Arbiter' },
+      { id: 'hack-t08-architect', role: 'Architect', persona: 'Feynman' },
+      { id: 'hack-t08-builder', role: 'Builder', persona: 'Eames' },
+      { id: 'hack-t08-strategist', role: 'Strategist', persona: 'Grove' },
     ],
-    coordinator: 'hack-t08-arbiter',
+    coordinator: 'hack-t08-coord',
   },
   {
-    id: 'T09', name: 'Team 09', pattern: 'D', patternLabel: 'Strategist / Systems / Premortem',
-    colorClass: 'team-card--pattern-d',
+    id: 'T09', name: 'Meridian', jpRocksTeam: 11, colorClass: 'team-card--t09',
     agents: [
-      { id: 'hack-t09-strategist', role: 'Strategist' },
-      { id: 'hack-t09-systems', role: 'Systems' },
-      { id: 'hack-t09-premortem', role: 'Premortem' },
+      { id: 'hack-t09-architect', role: 'Architect', persona: 'Meadows' },
+      { id: 'hack-t09-builder', role: 'Builder', persona: 'Rams' },
+      { id: 'hack-t09-strategist', role: 'Strategist', persona: 'Taleb' },
     ],
-    coordinator: 'hack-t09-strategist',
+    coordinator: 'hack-t09-coord',
   },
   {
-    id: 'T10', name: 'Team 10', pattern: 'D', patternLabel: 'Strategist / Systems / Premortem',
-    colorClass: 'team-card--pattern-d',
+    id: 'T10', name: 'Sightline', jpRocksTeam: 12, colorClass: 'team-card--t10',
     agents: [
-      { id: 'hack-t10-strategist', role: 'Strategist' },
-      { id: 'hack-t10-systems', role: 'Systems' },
-      { id: 'hack-t10-premortem', role: 'Premortem' },
+      { id: 'hack-t10-architect', role: 'Architect', persona: 'Lovelace' },
+      { id: 'hack-t10-builder', role: 'Builder', persona: 'Noguchi' },
+      { id: 'hack-t10-strategist', role: 'Strategist', persona: 'Tubman' },
     ],
-    coordinator: 'hack-t10-strategist',
+    coordinator: 'hack-t10-coord',
   },
 ];
 
-const PHASES: { key: Phase; label: string }[] = [
-  { key: 'debate', label: 'Debate' },
-  { key: 'plan', label: 'Plan' },
-  { key: 'execute', label: 'Execute' },
-  { key: 'proof', label: 'Proof' },
+// ── 11-Phase Hourly Cycle ──
+const PHASES: { key: Phase; label: string; shortLabel: string }[] = [
+  { key: 'debate', label: 'Debate', shortLabel: 'DBT' },
+  { key: 'research', label: 'Research', shortLabel: 'RSH' },
+  { key: 'informed_debate', label: 'Informed Debate', shortLabel: 'IDB' },
+  { key: 'decisions', label: 'Decisions', shortLabel: 'DEC' },
+  { key: 'mockups', label: 'Mockups', shortLabel: 'MOK' },
+  { key: 'test_mockups', label: 'Test Mockups', shortLabel: 'TST' },
+  { key: 'debate_mockups', label: 'Debate Mockups', shortLabel: 'DMK' },
+  { key: 'execute_decision', label: 'Execute Decision', shortLabel: 'EXD' },
+  { key: 'jp_rocks_execution', label: 'JP Rocks Execution', shortLabel: 'JPR' },
+  { key: 'review', label: 'Review', shortLabel: 'REV' },
+  { key: 'judge_presentation', label: 'Judge Presentation', shortLabel: 'JDG' },
 ];
 
 function phaseIndex(phase: Phase): number {
@@ -162,6 +171,7 @@ function agentStatusDotClass(agentId: string, agentStatuses: Record<string, { st
     case 'debating':
       return 'team-agent-dot--debating';
     case 'planning':
+    case 'researching':
       return 'team-agent-dot--planning';
     case 'error':
       return 'team-agent-dot--error';
@@ -175,7 +185,6 @@ export function TeamsPage() {
   const [agentStatuses, setAgentStatuses] = useState<Record<string, { status: string }>>({});
   const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
 
-  // Subscribe to teams RTDB data
   useEffect(() => {
     const teamsRef = ref(rtdb, 'teams');
     const unsubscribe = onValue(
@@ -192,7 +201,6 @@ export function TeamsPage() {
     return () => unsubscribe();
   }, []);
 
-  // Subscribe to agent statuses for avatar dots
   useEffect(() => {
     const agentsRef = ref(rtdb, 'agents');
     const unsubscribe = onValue(
@@ -233,7 +241,7 @@ export function TeamsPage() {
       <div className="teams-header">
         <h2>Teams</h2>
         <p className="teams-subtitle">
-          10 teams working in real-time -- 3 active per batch
+          10 teams -- 200-hour hackathon -- 11-phase hourly cycle
         </p>
         <div className="teams-stats">
           <span className="teams-stat">
@@ -264,10 +272,24 @@ export function TeamsPage() {
                 </svg>
                 Back
               </button>
-              <h3 className="team-detail__title">{team.name}</h3>
-              <span className="team-detail__pattern">Pattern {team.pattern}: {team.patternLabel}</span>
+              <h3 className="team-detail__title">{team.id}: {team.name}</h3>
+              <span className="team-detail__pattern">
+                Architect / Builder / Strategist -- JP Rocks Team {team.jpRocksTeam}
+              </span>
             </div>
 
+            {/* Agent roster */}
+            <div className="team-detail__roster">
+              {team.agents.map((agent) => (
+                <div key={agent.id} className="team-detail__agent">
+                  <span className={`team-agent-dot ${agentStatusDotClass(agent.id, agentStatuses)}`} aria-hidden="true" />
+                  <span className="team-detail__agent-role">{agent.role}</span>
+                  <span className="team-detail__agent-persona">{agent.persona}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* 11-phase progress bar */}
             <div className="team-detail__phases">
               {PHASES.map((phase, idx) => (
                 <div
@@ -279,9 +301,10 @@ export function TeamsPage() {
                       ? 'team-detail__phase--current'
                       : 'team-detail__phase--future'
                   }`}
+                  title={phase.label}
                 >
                   <span className="team-detail__phase-dot" aria-hidden="true" />
-                  <span>{phase.label}</span>
+                  <span className="team-detail__phase-short">{phase.shortLabel}</span>
                 </div>
               ))}
             </div>
@@ -311,7 +334,7 @@ export function TeamsPage() {
                 <div className="team-detail__artifact-placeholder">
                   {data.currentPhase === 'idle'
                     ? 'Waiting for hackathon to start...'
-                    : `Working on ${data.currentPhase} artifact -- H-${String(data.currentHour).padStart(3, '0')}`}
+                    : `Working on ${PHASES.find(p => p.key === data.currentPhase)?.label || data.currentPhase} -- H-${String(data.currentHour).padStart(3, '0')}`}
                 </div>
               </div>
             </div>
@@ -331,28 +354,29 @@ export function TeamsPage() {
                 key={team.id}
                 className={`team-card ${team.colorClass} ${data.batchActive ? 'team-card--batch-active' : ''}`}
                 onClick={() => setExpandedTeam(team.id)}
-                aria-label={`${team.name} - Pattern ${team.pattern} - ${data.currentPhase === 'idle' ? 'idle' : `phase: ${data.currentPhase}`}`}
+                aria-label={`${team.name} - ${data.currentPhase === 'idle' ? 'idle' : `phase: ${data.currentPhase}`}`}
               >
                 <div className="team-card__top">
-                  <span className="team-card__name">{team.name}</span>
+                  <span className="team-card__name">{team.id}: {team.name}</span>
                   {data.batchActive && (
                     <span className="team-card__batch-badge" aria-label="Active in current batch">LIVE</span>
                   )}
                 </div>
 
-                <span className="team-card__pattern">Pattern {team.pattern}</span>
+                <span className="team-card__pattern">JP Rocks Team {team.jpRocksTeam}</span>
 
-                {/* Agent avatars */}
+                {/* Agent avatars with persona names */}
                 <div className="team-card__agents">
                   {team.agents.map((agent) => (
-                    <div key={agent.id} className="team-card__agent" title={`${agent.role} (${agent.id})`}>
+                    <div key={agent.id} className="team-card__agent" title={`${agent.role}: ${agent.persona} (${agent.id})`}>
                       <span className={`team-agent-dot ${agentStatusDotClass(agent.id, agentStatuses)}`} aria-hidden="true" />
                       <span className="team-card__agent-role">{agent.role}</span>
+                      <span className="team-card__agent-persona">{agent.persona}</span>
                     </div>
                   ))}
                 </div>
 
-                {/* Phase progress */}
+                {/* Phase progress -- compact 11-phase bar */}
                 <div className="team-card__phases" aria-label={`Phase: ${data.currentPhase}`}>
                   {PHASES.map((phase, idx) => (
                     <div
@@ -364,9 +388,9 @@ export function TeamsPage() {
                           ? 'team-card__phase-step--current'
                           : 'team-card__phase-step--future'
                       }`}
+                      title={phase.label}
                     >
                       <span className="team-card__phase-bar" />
-                      <span className="team-card__phase-label">{phase.label}</span>
                     </div>
                   ))}
                 </div>
@@ -374,10 +398,7 @@ export function TeamsPage() {
                 {/* Hour + coordinator */}
                 <div className="team-card__footer">
                   <span className="team-card__hour">
-                    {data.currentHour > 0 ? `H-${String(data.currentHour).padStart(3, '0')}` : '--'}
-                  </span>
-                  <span className="team-card__coordinator" title={`Coordinator: ${team.coordinator}`}>
-                    {team.coordinator.split('-').pop()}
+                    {data.currentHour > 0 ? `H-${String(data.currentHour).padStart(3, '0')} / 200` : '-- / 200'}
                   </span>
                 </div>
 

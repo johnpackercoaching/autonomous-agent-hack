@@ -7,6 +7,15 @@
       "$messageId": {
         ".validate": "newData.hasChildren(['text', 'senderName', 'senderId', 'createdAt'])"
       }
+    },
+    "agents": {
+      ".read": "auth != null",
+      "$agentId": {
+        "meta": {
+          ".read": "auth != null",
+          ".write": "auth != null"
+        }
+      }
     }
   }
 }

@@ -1,0 +1,294 @@
+/* ── Floating Trigger Button ── */
+.feedback-trigger {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  z-index: 9998;
+}
+
+.feedback-trigger:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+  background: #4f46e5;
+}
+
+.feedback-trigger:focus-visible {
+  outline: 2px solid #818cf8;
+  outline-offset: 3px;
+}
+
+.feedback-trigger:active {
+  transform: scale(0.96);
+}
+
+/* ── Feedback Panel ── */
+.feedback-panel {
+  position: fixed;
+  bottom: 84px;
+  right: 24px;
+  width: 340px;
+  max-height: calc(100vh - 120px);
+  background: #1e1e2e;
+  border: 1px solid #313244;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  animation: feedbackSlideUp 0.25s ease-out;
+  overflow: hidden;
+}
+
+@keyframes feedbackSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Panel Header ── */
+.feedback-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #313244;
+}
+
+.feedback-panel-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #cdd6f4;
+  letter-spacing: 0.01em;
+}
+
+.feedback-panel-close {
+  background: none;
+  border: none;
+  color: #6c7086;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.feedback-panel-close:hover {
+  color: #cdd6f4;
+  background: #313244;
+}
+
+.feedback-panel-close:focus-visible {
+  outline: 2px solid #818cf8;
+  outline-offset: 2px;
+}
+
+/* ── Panel Body ── */
+.feedback-panel-body {
+  padding: 16px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.feedback-textarea {
+  width: 100%;
+  min-height: 80px;
+  max-height: 160px;
+  padding: 10px 12px;
+  background: #11111b;
+  border: 1px solid #313244;
+  border-radius: 8px;
+  color: #cdd6f4;
+  font-size: 13px;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.feedback-textarea::placeholder {
+  color: #585b70;
+}
+
+.feedback-textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.feedback-textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Screenshot ── */
+.feedback-screenshot-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 6px 10px;
+  background: none;
+  border: 1px solid #313244;
+  border-radius: 6px;
+  color: #a6adc8;
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.feedback-screenshot-btn:hover {
+  border-color: #6366f1;
+  color: #cdd6f4;
+}
+
+.feedback-screenshot-btn:focus-visible {
+  outline: 2px solid #818cf8;
+  outline-offset: 2px;
+}
+
+.feedback-screenshot-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.feedback-screenshot-preview {
+  margin-top: 10px;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #313244;
+}
+
+.feedback-screenshot-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.feedback-screenshot-remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 3px 8px;
+  background: rgba(17, 17, 27, 0.85);
+  border: 1px solid #313244;
+  border-radius: 4px;
+  color: #f38ba8;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.feedback-screenshot-remove:hover {
+  background: rgba(17, 17, 27, 1);
+}
+
+.feedback-screenshot-remove:focus-visible {
+  outline: 2px solid #818cf8;
+  outline-offset: 2px;
+}
+
+/* ── Status Messages ── */
+.feedback-status {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.feedback-status-success {
+  background: rgba(166, 227, 161, 0.1);
+  color: #a6e3a1;
+  border: 1px solid rgba(166, 227, 161, 0.2);
+}
+
+.feedback-status-error {
+  background: rgba(243, 139, 168, 0.1);
+  color: #f38ba8;
+  border: 1px solid rgba(243, 139, 168, 0.2);
+}
+
+/* ── Panel Actions ── */
+.feedback-panel-actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid #313244;
+}
+
+.feedback-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.feedback-btn:focus-visible {
+  outline: 2px solid #818cf8;
+  outline-offset: 2px;
+}
+
+.feedback-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.feedback-btn-send {
+  background: #313244;
+  color: #cdd6f4;
+}
+
+.feedback-btn-send:hover:not(:disabled) {
+  background: #45475a;
+}
+
+.feedback-btn-autofix {
+  background: #6366f1;
+  color: #fff;
+}
+
+.feedback-btn-autofix:hover:not(:disabled) {
+  background: #4f46e5;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .feedback-panel {
+    right: 12px;
+    left: 12px;
+    width: auto;
+    bottom: 76px;
+  }
+
+  .feedback-trigger {
+    bottom: 16px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
+  }
+}

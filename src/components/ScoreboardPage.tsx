@@ -5,95 +5,124 @@ import './ScoreboardPage.css';
 
 // ── Types ──
 interface TeamScores {
-  strategicFit: number;
-  impactEvidence: number;
-  feasibility: number;
-  documentation: number;
-  execution: number;
-  originality: number;
+  strategicLockIn: number;
+  revenueMechanism: number;
+  userImpact: number;
+  lastMileProof: number;
+  enterpriseReadiness: number;
+  craftFinish: number;
 }
 
 interface ScoreboardEntry {
   teamId: string;
   teamName: string;
-  pattern: string;
   scores: TeamScores;
   weightedTotal: number;
-  gateStatus: 'green' | 'amber' | 'red' | 'none';
+  scoringGuide: string;
 }
 
 type ScoreboardData = Record<string, Omit<ScoreboardEntry, 'teamId'>>;
 
-// ── Weight config ──
+// ── Weight config -- matches judging rubric ──
 const WEIGHTS = {
-  strategicFit: 0.20,
-  impactEvidence: 0.25,
-  feasibility: 0.15,
-  documentation: 0.15,
-  execution: 0.15,
-  originality: 0.10,
+  strategicLockIn: 0.25,
+  revenueMechanism: 0.20,
+  userImpact: 0.20,
+  lastMileProof: 0.15,
+  enterpriseReadiness: 0.10,
+  craftFinish: 0.10,
 };
 
-const SCORE_COLUMNS: { key: keyof TeamScores; label: string; weight: string }[] = [
-  { key: 'strategicFit', label: 'Strategic Fit', weight: '20%' },
-  { key: 'impactEvidence', label: 'Impact Evidence', weight: '25%' },
-  { key: 'feasibility', label: 'Feasibility', weight: '15%' },
-  { key: 'documentation', label: 'Documentation', weight: '15%' },
-  { key: 'execution', label: 'Execution', weight: '15%' },
-  { key: 'originality', label: 'Originality', weight: '10%' },
+const SCORE_COLUMNS: { key: keyof TeamScores; label: string; weight: string; description: string }[] = [
+  {
+    key: 'strategicLockIn',
+    label: 'Strategic Lock-In',
+    weight: '25%',
+    description: 'Makes Lucid harder to leave. Moat competitors cannot replicate. Infrastructure, not appware.',
+  },
+  {
+    key: 'revenueMechanism',
+    label: 'Revenue Mechanism',
+    weight: '20%',
+    description: 'Can Lucid charge for this? New buyer persona? Expansion driver?',
+  },
+  {
+    key: 'userImpact',
+    label: 'User Impact',
+    weight: '20%',
+    description: 'Real user gets measurably better at their job. Pain point users have actually articulated.',
+  },
+  {
+    key: 'lastMileProof',
+    label: 'Last Mile Proof',
+    weight: '15%',
+    description: 'Proves Lucid + agents = outcomes neither achieves alone. Documented processes + agents = measurable enterprise value.',
+  },
+  {
+    key: 'enterpriseReadiness',
+    label: 'Enterprise Ready',
+    weight: '10%',
+    description: 'Governance, permissions, audit trail, compliance. CISO-approvable. Data boundary respect.',
+  },
+  {
+    key: 'craftFinish',
+    label: 'Craft & Finish',
+    weight: '10%',
+    description: 'Does it work? Demo polished? One thing finished > five things half-built.',
+  },
 ];
 
-// Default team mapping for when no RTDB data exists
-const DEFAULT_TEAMS: { id: string; name: string; pattern: string }[] = [
-  { id: 'T01', name: 'Team 01', pattern: 'A' },
-  { id: 'T02', name: 'Team 02', pattern: 'A' },
-  { id: 'T03', name: 'Team 03', pattern: 'A' },
-  { id: 'T04', name: 'Team 04', pattern: 'B' },
-  { id: 'T05', name: 'Team 05', pattern: 'B' },
-  { id: 'T06', name: 'Team 06', pattern: 'B' },
-  { id: 'T07', name: 'Team 07', pattern: 'C' },
-  { id: 'T08', name: 'Team 08', pattern: 'C' },
-  { id: 'T09', name: 'Team 09', pattern: 'D' },
-  { id: 'T10', name: 'Team 10', pattern: 'D' },
+// ── Scoring guide thresholds ──
+function scoringGuide(total: number): string {
+  if (total >= 9) return 'Fund within 90 days';
+  if (total >= 7) return 'Strong -- needs refinement';
+  if (total >= 5) return 'Interesting but no needle moved';
+  if (total >= 3) return 'Technically works, strategically disconnected';
+  if (total > 0) return 'Does not ship or does not matter';
+  return 'Not scored';
+}
+
+// Default team mapping
+const DEFAULT_TEAMS: { id: string; name: string }[] = [
+  { id: 'T01', name: 'First Light' },
+  { id: 'T02', name: 'Grain' },
+  { id: 'T03', name: 'Terraform' },
+  { id: 'T04', name: 'Parallax' },
+  { id: 'T05', name: 'Signal Fire' },
+  { id: 'T06', name: 'Groundwork' },
+  { id: 'T07', name: 'Threshold' },
+  { id: 'T08', name: 'Undertow' },
+  { id: 'T09', name: 'Meridian' },
+  { id: 'T10', name: 'Sightline' },
 ];
 
 const EMPTY_SCORES: TeamScores = {
-  strategicFit: 0,
-  impactEvidence: 0,
-  feasibility: 0,
-  documentation: 0,
-  execution: 0,
-  originality: 0,
+  strategicLockIn: 0,
+  revenueMechanism: 0,
+  userImpact: 0,
+  lastMileProof: 0,
+  enterpriseReadiness: 0,
+  craftFinish: 0,
 };
 
 function computeWeightedTotal(scores: TeamScores): number {
   return (
-    scores.strategicFit * WEIGHTS.strategicFit +
-    scores.impactEvidence * WEIGHTS.impactEvidence +
-    scores.feasibility * WEIGHTS.feasibility +
-    scores.documentation * WEIGHTS.documentation +
-    scores.execution * WEIGHTS.execution +
-    scores.originality * WEIGHTS.originality
+    scores.strategicLockIn * WEIGHTS.strategicLockIn +
+    scores.revenueMechanism * WEIGHTS.revenueMechanism +
+    scores.userImpact * WEIGHTS.userImpact +
+    scores.lastMileProof * WEIGHTS.lastMileProof +
+    scores.enterpriseReadiness * WEIGHTS.enterpriseReadiness +
+    scores.craftFinish * WEIGHTS.craftFinish
   );
 }
 
-function gateClass(status: string): string {
-  switch (status) {
-    case 'green': return 'scoreboard__gate--green';
-    case 'amber': return 'scoreboard__gate--amber';
-    case 'red': return 'scoreboard__gate--red';
-    default: return 'scoreboard__gate--none';
-  }
-}
-
-function patternBadgeClass(pattern: string): string {
-  switch (pattern) {
-    case 'A': return 'scoreboard__pattern--a';
-    case 'B': return 'scoreboard__pattern--b';
-    case 'C': return 'scoreboard__pattern--c';
-    case 'D': return 'scoreboard__pattern--d';
-    default: return '';
-  }
+function scoreColor(score: number): string {
+  if (score >= 9) return 'scoreboard__score--excellent';
+  if (score >= 7) return 'scoreboard__score--strong';
+  if (score >= 5) return 'scoreboard__score--moderate';
+  if (score >= 3) return 'scoreboard__score--weak';
+  if (score > 0) return 'scoreboard__score--poor';
+  return '';
 }
 
 export function ScoreboardPage() {
@@ -101,7 +130,6 @@ export function ScoreboardPage() {
   const [summaryStats, setSummaryStats] = useState({ totalHours: 0, totalArtifacts: 0, totalDebates: 0, activeBatch: 0 });
   const prevTotals = useRef<Record<string, number>>({});
 
-  // Subscribe to scoreboard data
   useEffect(() => {
     const scoreRef = ref(rtdb, 'scoreboard');
     const unsubscribe = onValue(
@@ -118,7 +146,6 @@ export function ScoreboardPage() {
     return () => unsubscribe();
   }, []);
 
-  // Subscribe to summary stats
   useEffect(() => {
     const teamsRef = ref(rtdb, 'teams');
     const unsubscribe = onValue(
@@ -155,22 +182,22 @@ export function ScoreboardPage() {
   const entries: ScoreboardEntry[] = DEFAULT_TEAMS.map((def) => {
     const data = scoreData[def.id];
     if (data) {
+      const scores = data.scores || EMPTY_SCORES;
+      const total = data.weightedTotal ?? computeWeightedTotal(scores);
       return {
         teamId: def.id,
         teamName: data.teamName || def.name,
-        pattern: data.pattern || def.pattern,
-        scores: data.scores || EMPTY_SCORES,
-        weightedTotal: data.weightedTotal ?? computeWeightedTotal(data.scores || EMPTY_SCORES),
-        gateStatus: data.gateStatus || 'none',
+        scores,
+        weightedTotal: total,
+        scoringGuide: scoringGuide(total),
       };
     }
     return {
       teamId: def.id,
       teamName: def.name,
-      pattern: def.pattern,
       scores: EMPTY_SCORES,
       weightedTotal: 0,
-      gateStatus: 'none' as const,
+      scoringGuide: 'Not scored',
     };
   }).sort((a, b) => b.weightedTotal - a.weightedTotal);
 
@@ -191,15 +218,24 @@ export function ScoreboardPage() {
       <div className="scoreboard-header">
         <h2>Scoreboard</h2>
         <p className="scoreboard-subtitle">
-          Real-time leaderboard across all 10 teams
+          Real-time leaderboard -- 200-hour hackathon -- 6 weighted criteria
         </p>
+      </div>
+
+      {/* Scoring guide legend */}
+      <div className="scoreboard-legend">
+        <span className="scoreboard-legend__item"><strong>9-10:</strong> Fund within 90 days</span>
+        <span className="scoreboard-legend__item"><strong>7-8:</strong> Strong, needs refinement</span>
+        <span className="scoreboard-legend__item"><strong>5-6:</strong> Interesting, no needle moved</span>
+        <span className="scoreboard-legend__item"><strong>3-4:</strong> Works but disconnected</span>
+        <span className="scoreboard-legend__item"><strong>1-2:</strong> Does not ship or matter</span>
       </div>
 
       {/* Summary stats */}
       <div className="scoreboard-summary">
         <div className="scoreboard-summary__item">
           <span className="scoreboard-summary__value">{summaryStats.totalHours}</span>
-          <span className="scoreboard-summary__label">Hours Completed</span>
+          <span className="scoreboard-summary__label">Hours Completed (of 2,000)</span>
         </div>
         <div className="scoreboard-summary__item">
           <span className="scoreboard-summary__value">{summaryStats.totalArtifacts}</span>
@@ -228,20 +264,19 @@ export function ScoreboardPage() {
           <div className="scoreboard-row scoreboard-row--header" role="row">
             <span className="scoreboard-cell scoreboard-cell--rank" role="columnheader">Rank</span>
             <span className="scoreboard-cell scoreboard-cell--team" role="columnheader">Team</span>
-            <span className="scoreboard-cell scoreboard-cell--pattern" role="columnheader">Pattern</span>
-            <span className="scoreboard-cell scoreboard-cell--gate" role="columnheader">Gate</span>
             {SCORE_COLUMNS.map((col) => (
               <span
                 key={col.key}
                 className="scoreboard-cell scoreboard-cell--score"
                 role="columnheader"
-                title={`${col.label} (${col.weight})`}
+                title={col.description}
               >
                 {col.label}
                 <span className="scoreboard-cell__weight">{col.weight}</span>
               </span>
             ))}
             <span className="scoreboard-cell scoreboard-cell--total" role="columnheader">Total</span>
+            <span className="scoreboard-cell scoreboard-cell--guide" role="columnheader">Rating</span>
           </div>
 
           {/* Rows */}
@@ -255,22 +290,15 @@ export function ScoreboardPage() {
                 {idx + 1}
               </span>
               <span className="scoreboard-cell scoreboard-cell--team" role="cell">
-                {entry.teamName}
-              </span>
-              <span className={`scoreboard-cell scoreboard-cell--pattern ${patternBadgeClass(entry.pattern)}`} role="cell">
-                {entry.pattern}
-              </span>
-              <span className="scoreboard-cell scoreboard-cell--gate" role="cell">
-                <span
-                  className={`scoreboard__gate ${gateClass(entry.gateStatus)}`}
-                  aria-label={`Gate status: ${entry.gateStatus}`}
-                />
+                <span className="scoreboard__team-id">{entry.teamId}</span>
+                <span className="scoreboard__team-name">{entry.teamName}</span>
               </span>
               {SCORE_COLUMNS.map((col) => (
                 <span
                   key={col.key}
-                  className="scoreboard-cell scoreboard-cell--score"
+                  className={`scoreboard-cell scoreboard-cell--score ${scoreColor(entry.scores[col.key])}`}
                   role="cell"
+                  title={`${col.label}: ${entry.scores[col.key].toFixed(1)} (${col.weight})`}
                 >
                   {entry.scores[col.key].toFixed(1)}
                 </span>
@@ -278,9 +306,25 @@ export function ScoreboardPage() {
               <span className="scoreboard-cell scoreboard-cell--total" role="cell">
                 {entry.weightedTotal.toFixed(2)}
               </span>
+              <span className="scoreboard-cell scoreboard-cell--guide" role="cell">
+                {entry.scoringGuide}
+              </span>
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Anti-patterns reminder */}
+      <div className="scoreboard-antipatterns">
+        <h4>What Scores Low</h4>
+        <ul>
+          <li>Technical novelty for its own sake</li>
+          <li>Breadth over depth -- five features half-built loses to one finished</li>
+          <li>AI wrapper -- agent that just calls an LLM and formats output</li>
+          <li>No connection to a documented gap or user pain point</li>
+          <li>Could be built on any platform -- not Lucid-specific</li>
+          <li>Speed of generation over governance -- fast but ungovernable</li>
+        </ul>
       </div>
     </div>
   );

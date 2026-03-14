@@ -3,7 +3,7 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import './App.css'
 import { AuthProvider, useAuth } from './AuthContext'
 import LoginPage from './LoginPage'
-import { ErrorBoundary, AgentsPage, ChatPage, TeamsPage, ScoreboardPage } from './components'
+import { ErrorBoundary, AgentsPage, ChatPage, TeamsPage, ScoreboardPage, InlineFeedback } from './components'
 
 // ── All customizable text in one place ──
 const APP_NAME = 'Agent Hackathon'
@@ -198,14 +198,17 @@ function AuthenticatedApp() {
   const userInfo = { email: user.email, displayName: user.displayName, photoURL: user.photoURL }
 
   return (
-    <Routes>
-      <Route path="/" element={<PageLayout user={userInfo} onSignOut={signOut}><PlaceholderPage title="Dashboard" /></PageLayout>} />
-      <Route path="/agents" element={<PageLayout user={userInfo} onSignOut={signOut}><AgentsPage /></PageLayout>} />
-      <Route path="/teams" element={<PageLayout user={userInfo} onSignOut={signOut}><TeamsPage /></PageLayout>} />
-      <Route path="/scoreboard" element={<PageLayout user={userInfo} onSignOut={signOut}><ScoreboardPage /></PageLayout>} />
-      <Route path="/chat" element={<PageLayout user={userInfo} onSignOut={signOut}><ChatPage /></PageLayout>} />
-      <Route path="*" element={<PageLayout user={userInfo} onSignOut={signOut}><PlaceholderPage title="Dashboard" /></PageLayout>} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<PageLayout user={userInfo} onSignOut={signOut}><PlaceholderPage title="Dashboard" /></PageLayout>} />
+        <Route path="/agents" element={<PageLayout user={userInfo} onSignOut={signOut}><AgentsPage /></PageLayout>} />
+        <Route path="/teams" element={<PageLayout user={userInfo} onSignOut={signOut}><TeamsPage /></PageLayout>} />
+        <Route path="/scoreboard" element={<PageLayout user={userInfo} onSignOut={signOut}><ScoreboardPage /></PageLayout>} />
+        <Route path="/chat" element={<PageLayout user={userInfo} onSignOut={signOut}><ChatPage /></PageLayout>} />
+        <Route path="*" element={<PageLayout user={userInfo} onSignOut={signOut}><PlaceholderPage title="Dashboard" /></PageLayout>} />
+      </Routes>
+      <InlineFeedback />
+    </>
   )
 }
 

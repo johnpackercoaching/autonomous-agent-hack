@@ -1,0 +1,26 @@
+name: Smart Scheduler
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+jobs:
+  trigger-autonomous:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+
+    steps:
+      - name: Trigger auto-fix in autonomous mode
+        run: |
+          gh workflow run auto-fix.yml \
+            --repo jye-lol/autonomous-agent-hack \
+            --ref main \
+            -f feedback_id="autonomous-$(date +%Y%m%d-%H%M%S)" \
+            -f feedback_text="Autonomous quality check" \
+            -f feedback_url="/" \
+            -f mode="autonomous"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

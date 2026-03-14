@@ -1,12 +1,14 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
+import { defineSecret } from "firebase-functions/params";
 import { initializeApp } from "firebase-admin/app";
 import { getFirestore, FieldValue, Timestamp } from "firebase-admin/firestore";
 
 initializeApp();
 const db = getFirestore();
+const githubTokenSecret = defineSecret("GITHUB_TOKEN");
 
-const GITHUB_OWNER = "jye-lol";
+const GITHUB_OWNER = "johnpackercoaching";
 const GITHUB_REPO = "autonomous-agent-hack";
 const GITHUB_WORKFLOW = "auto-fix.yml";
 const RATE_LIMIT_MINUTES = 5;
@@ -15,7 +17,7 @@ const STALE_TIMEOUT_MINUTES = 50;
 // ── triggerAutoFix ──────────────────────────────────────────────────────
 // Callable function: creates a feedback doc and dispatches the GitHub Actions auto-fix workflow.
 export const triggerAutoFix = onCall(
-  { maxInstances: 5, timeoutSeconds: 30 },
+  { maxInstances: 5, timeoutSeconds: 30, secrets: [githubTokenSecret] },
   async (request) => {
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "You must be signed in.");
@@ -70,7 +72,7 @@ export const triggerAutoFix = onCall(
     await userRef.set({ lastTrigger: FieldValue.serverTimestamp() }, { merge: true });
 
     // Dispatch GitHub Actions workflow
-    const githubToken = process.env.GITHUB_TOKEN;
+    const githubToken = githubTokenSecret.value();
     if (!githubToken) {
       await feedbackRef.update({
         status: "failed",
@@ -163,9 +165,9 @@ export const recoverStaleAutoFix = onSchedule(
 // ── auditCompletedFixes ─────────────────────────────────────────────────
 // Scheduled daily at 2 AM UTC: checks whether PRs from completed fixes have been merged.
 export const auditCompletedFixes = onSchedule(
-  { schedule: "0 2 * * *", timeoutSeconds: 120 },
+  { schedule: "0 2 * * *", timeoutSeconds: 120, secrets: [githubTokenSecret] },
   async () => {
-    const githubToken = process.env.GITHUB_TOKEN;
+    const githubToken = githubTokenSecret.value();
     if (!githubToken) {
       console.error("auditCompletedFixes: GITHUB_TOKEN not set, skipping.");
       return;

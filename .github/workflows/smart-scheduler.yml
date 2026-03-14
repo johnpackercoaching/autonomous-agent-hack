@@ -16,7 +16,7 @@ jobs:
       - name: Trigger auto-fix in autonomous mode
         run: |
           gh workflow run auto-fix.yml \
-            --repo jye-lol/autonomous-agent-hack \
+            --repo johnpackercoaching/autonomous-agent-hack \
             --ref main \
             -f feedback_id="autonomous-$(date +%Y%m%d-%H%M%S)" \
             -f feedback_text="Autonomous quality check" \

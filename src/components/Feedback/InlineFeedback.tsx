@@ -171,9 +171,10 @@ export function InlineFeedback() {
       setShowDashboard(true)
       setStatus('success')
       setStatusMessage('Auto-fix triggered! Watch the progress below.')
-    } catch {
+    } catch (err: unknown) {
       setStatus('error')
-      setStatusMessage('Failed to trigger auto-fix. Please try again.')
+      const detail = err instanceof Error ? err.message : 'Unknown error'
+      setStatusMessage(`Auto-fix failed: ${detail}`)
     } finally {
       setSending(false)
     }

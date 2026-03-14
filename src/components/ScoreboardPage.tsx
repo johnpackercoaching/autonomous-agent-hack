@@ -38,13 +38,13 @@ const SCORE_COLUMNS: { key: keyof TeamScores; label: string; weight: string; des
     key: 'strategicLockIn',
     label: 'Strategic Lock-In',
     weight: '25%',
-    description: 'Makes Lucid harder to leave. Moat competitors cannot replicate. Infrastructure, not appware.',
+    description: 'Creates switching costs competitors cannot replicate. Infrastructure, not appware.',
   },
   {
     key: 'revenueMechanism',
     label: 'Revenue Mechanism',
     weight: '20%',
-    description: 'Can Lucid charge for this? New buyer persona? Expansion driver?',
+    description: 'Clear path to monetization. New buyer persona? Expansion driver?',
   },
   {
     key: 'userImpact',
@@ -56,7 +56,7 @@ const SCORE_COLUMNS: { key: keyof TeamScores; label: string; weight: string; des
     key: 'lastMileProof',
     label: 'Last Mile Proof',
     weight: '15%',
-    description: 'Proves Lucid + agents = outcomes neither achieves alone. Documented processes + agents = measurable enterprise value.',
+    description: 'Proves platform + agents = outcomes neither achieves alone. Documented processes + agents = measurable enterprise value.',
   },
   {
     key: 'enterpriseReadiness',
@@ -322,7 +322,7 @@ export function ScoreboardPage() {
           <li>Breadth over depth -- five features half-built loses to one finished</li>
           <li>AI wrapper -- agent that just calls an LLM and formats output</li>
           <li>No connection to a documented gap or user pain point</li>
-          <li>Could be built on any platform -- not Lucid-specific</li>
+          <li>Could be built on any platform -- not strategically differentiated</li>
           <li>Speed of generation over governance -- fast but ungovernable</li>
         </ul>
       </div>

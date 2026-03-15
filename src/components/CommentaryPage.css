@@ -1,0 +1,164 @@
+/* CommentaryPage — Geist aesthetic */
+
+.commentary-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.commentary-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+/* Header */
+.commentary-header {
+  margin-bottom: 32px;
+}
+
+.commentary-label {
+  font-size: 0.75rem;
+  color: var(--color-ink-muted);
+  margin: 0 0 4px;
+  font-family: var(--font-mono, monospace);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.commentary-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  margin: 0 0 4px;
+  letter-spacing: -0.025em;
+}
+
+.commentary-desc {
+  font-size: 0.875rem;
+  color: var(--color-ink-muted);
+  margin: 0;
+}
+
+/* Empty state */
+.commentary-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  border: 1px dashed var(--color-line);
+  border-radius: var(--radius-lg);
+  padding: 48px 32px;
+  text-align: center;
+}
+
+.commentary-empty-icon {
+  color: var(--color-ink-muted);
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+
+.commentary-empty-text {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin: 0 0 8px;
+}
+
+.commentary-empty-hint {
+  font-size: 0.8125rem;
+  color: var(--color-ink-muted);
+  margin: 0;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+.commentary-empty-hint code {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  background: var(--color-accent-4);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  word-break: break-all;
+}
+
+/* Episode list */
+.commentary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-line);
+}
+
+.commentary-episode {
+  padding: 16px;
+  background: var(--color-surface);
+}
+
+.commentary-episode-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.commentary-team-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-family: var(--font-mono, monospace);
+  padding: 2px 8px;
+  border: 1.5px solid;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.02em;
+}
+
+.commentary-episode-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  flex: 1;
+}
+
+.commentary-duration {
+  font-size: 0.75rem;
+  color: var(--color-ink-muted);
+  font-family: var(--font-mono, monospace);
+}
+
+/* Audio player */
+.commentary-player {
+  margin-bottom: 8px;
+}
+
+.commentary-player audio {
+  width: 100%;
+  height: 36px;
+  border-radius: var(--radius-sm);
+}
+
+.commentary-episode-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.commentary-date {
+  font-size: 0.6875rem;
+  color: var(--color-ink-muted);
+  font-family: var(--font-mono, monospace);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .commentary-page {
+    padding: 24px 16px;
+  }
+  .commentary-empty {
+    padding: 32px 20px;
+  }
+}

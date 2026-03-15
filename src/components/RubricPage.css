@@ -1,0 +1,278 @@
+/* RubricPage.css */
+@import '/design-tokens.css';
+
+.rubric-page {
+  padding: 1.5rem 0;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.rubric-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.rubric-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.rubric-subtitle {
+  font-size: 0.85rem;
+  color: var(--color-ink-muted);
+  margin-top: 0.2rem;
+}
+
+.rubric-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Buttons */
+.rubric-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--color-line);
+  transition: all 0.15s ease;
+}
+
+.rubric-btn--edit {
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+.rubric-btn--edit:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.rubric-btn--save {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}
+.rubric-btn--save:hover:not(:disabled) {
+  opacity: 0.9;
+}
+.rubric-btn--save:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.rubric-btn--cancel {
+  background: var(--color-surface);
+  color: var(--color-ink-muted);
+}
+.rubric-btn--cancel:hover {
+  background: var(--color-bg-hover);
+}
+
+.rubric-msg {
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+}
+.rubric-msg--success {
+  color: #10b981;
+  background: rgba(16,185,129,0.1);
+}
+.rubric-msg--error {
+  color: #ef4444;
+  background: rgba(239,68,68,0.1);
+}
+
+/* Dimension summary */
+.rubric-dims {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.rubric-dim {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-left: 3px solid var(--dc);
+  font-size: 0.78rem;
+  transition: transform 0.15s ease;
+}
+.rubric-dim:hover {
+  transform: translateY(-1px);
+}
+.rubric-dim-w {
+  font-weight: 700;
+  color: var(--dc);
+  font-size: 0.85rem;
+}
+.rubric-dim-n {
+  color: var(--color-ink-light);
+  font-weight: 500;
+}
+
+/* Content body */
+.rubric-body {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Editor */
+.rubric-editor {
+  width: 100%;
+  min-height: 70vh;
+  padding: 1.5rem;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--color-ink);
+  background: var(--color-bg-subtle);
+  border: none;
+  resize: vertical;
+  outline: none;
+}
+.rubric-editor:focus {
+  background: var(--color-surface);
+}
+
+/* Display */
+.rubric-display {
+  padding: 2rem;
+}
+
+.rubric-h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  margin: 1.5rem 0 0.75rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid var(--color-accent);
+}
+.rubric-h1:first-child { margin-top: 0; }
+
+.rubric-h2 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin: 1.5rem 0 0.5rem;
+}
+
+.rubric-h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-ink-light);
+  margin: 1.25rem 0 0.5rem;
+}
+
+.rubric-p {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--color-ink-light);
+  margin: 0.4rem 0;
+}
+.rubric-p em { color: var(--color-ink-muted); }
+.rubric-p strong { color: var(--color-ink); font-weight: 600; }
+
+.rubric-li {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-ink-light);
+  padding: 0.15rem 0 0.15rem 1.25rem;
+  position: relative;
+}
+.rubric-li::before {
+  content: '';
+  position: absolute;
+  left: 0.25rem;
+  top: 0.65rem;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+.rubric-li--num::before { display: none; }
+.rubric-li strong { color: var(--color-ink); }
+
+.rubric-hr {
+  border: none;
+  height: 1px;
+  background: var(--color-line);
+  margin: 1.5rem 0;
+}
+
+/* Tables */
+.rubric-table-wrap {
+  overflow-x: auto;
+  margin: 0.75rem 0;
+  border-radius: 6px;
+  border: 1px solid var(--color-line);
+}
+.rubric-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.rubric-table th {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  background: var(--color-bg-subtle);
+  color: var(--color-ink);
+  font-weight: 600;
+  border-bottom: 2px solid var(--color-line);
+  white-space: nowrap;
+}
+.rubric-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--color-line);
+  color: var(--color-ink-light);
+  vertical-align: top;
+}
+.rubric-table tr:last-child td { border-bottom: none; }
+.rubric-table tr:hover td { background: var(--color-bg-hover); }
+.rubric-table td strong { color: var(--color-ink); }
+
+/* Loading */
+.rubric-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  color: var(--color-ink-muted);
+  gap: 1rem;
+}
+.rubric-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-line);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .rubric-header { flex-direction: column; }
+  .rubric-dims { flex-direction: column; }
+  .rubric-display { padding: 1rem; }
+  .rubric-editor { padding: 1rem; }
+}

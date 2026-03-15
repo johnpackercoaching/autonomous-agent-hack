@@ -1,590 +1,316 @@
+import { useState } from 'react';
 import './LabsPage.css';
 
 // ──────────────────────────────────────────────────────
-// Labs Page — 10 Dashboard Mockup Explorations
-// Each mockup is a self-contained vision for the hackathon dashboard.
-// Design philosophy: Paul Rand — form and content are one.
+// Labs Page — 10 Team Observation Dashboard Mockups
+// Each mockup shows THREE visuals arranged differently:
+//   1. Agent Communication View (inter-agent chat)
+//   2. File Directory View (file tree with changes)
+//   3. Live UI Preview (what agents are building)
 // ──────────────────────────────────────────────────────
 
-function Mockup1_CommandCenter() {
-  const agents = [
-    { name: 'hack-leader', status: 'active' as const, label: 'coordinating' },
-    { name: 'hack-t01-architect', status: 'active' as const, label: 'designing' },
-    { name: 'hack-t01-builder', status: 'active' as const, label: 'executing' },
-    { name: 'hack-t02-coord', status: 'idle' as const, label: 'standby' },
-    { name: 'hack-t03-strategist', status: 'idle' as const, label: 'standby' },
-    { name: 'hack-judge-quality', status: 'error' as const, label: 'timeout' },
-    { name: 'hack-t04-builder', status: 'active' as const, label: 'building' },
-    { name: 'hack-cos', status: 'idle' as const, label: 'standby' },
-  ];
+// ── Shared Mock Data ──
+const AGENT_MESSAGES = [
+  { from: 'coordinator', to: 'all', text: 'Starting checkpoint review. Each agent report status.', time: '14:32:07', type: 'directive' as const },
+  { from: 'specialist-1', to: 'coordinator', text: 'Auth module complete. 12 tests passing. Moving to API integration.', time: '14:32:15', type: 'status' as const },
+  { from: 'specialist-2', to: 'specialist-1', text: 'I need the auth token format before I can wire up the dashboard fetch calls.', time: '14:32:28', type: 'request' as const },
+  { from: 'specialist-1', to: 'specialist-2', text: 'JWT with { sub, role, exp } claims. Bearer prefix. Sending schema now.', time: '14:32:41', type: 'response' as const },
+  { from: 'coordinator', to: 'all', text: 'Good handoff. Specialist-2, prioritize the metrics endpoint next.', time: '14:32:55', type: 'directive' as const },
+  { from: 'specialist-2', to: 'coordinator', text: 'Understood. ETA 15 minutes for metrics API + component.', time: '14:33:02', type: 'status' as const },
+  { from: 'specialist-1', to: 'all', text: 'Found a race condition in the WebSocket reconnect logic. Fixing now.', time: '14:33:18', type: 'alert' as const },
+  { from: 'coordinator', to: 'specialist-1', text: 'Priority fix. Block other work until resolved.', time: '14:33:25', type: 'directive' as const },
+];
 
+const FILE_TREE = [
+  { path: 'src/', type: 'dir' as const, status: 'unchanged' as const, depth: 0 },
+  { path: 'src/App.tsx', type: 'file' as const, status: 'modified' as const, depth: 1, additions: 12, deletions: 3 },
+  { path: 'src/auth/', type: 'dir' as const, status: 'unchanged' as const, depth: 1 },
+  { path: 'src/auth/login.tsx', type: 'file' as const, status: 'added' as const, depth: 2, additions: 84, deletions: 0 },
+  { path: 'src/auth/token.ts', type: 'file' as const, status: 'added' as const, depth: 2, additions: 42, deletions: 0 },
+  { path: 'src/auth/guard.tsx', type: 'file' as const, status: 'added' as const, depth: 2, additions: 31, deletions: 0 },
+  { path: 'src/api/', type: 'dir' as const, status: 'unchanged' as const, depth: 1 },
+  { path: 'src/api/metrics.ts', type: 'file' as const, status: 'modified' as const, depth: 2, additions: 28, deletions: 8 },
+  { path: 'src/api/websocket.ts', type: 'file' as const, status: 'modified' as const, depth: 2, additions: 15, deletions: 22 },
+  { path: 'src/components/', type: 'dir' as const, status: 'unchanged' as const, depth: 1 },
+  { path: 'src/components/Dashboard.tsx', type: 'file' as const, status: 'modified' as const, depth: 2, additions: 56, deletions: 14 },
+  { path: 'src/components/MetricsCard.tsx', type: 'file' as const, status: 'added' as const, depth: 2, additions: 67, deletions: 0 },
+  { path: 'src/components/Header.tsx', type: 'file' as const, status: 'unchanged' as const, depth: 2, additions: 0, deletions: 0 },
+  { path: 'src/styles/', type: 'dir' as const, status: 'unchanged' as const, depth: 1 },
+  { path: 'src/styles/dashboard.css', type: 'file' as const, status: 'modified' as const, depth: 2, additions: 34, deletions: 5 },
+  { path: 'package.json', type: 'file' as const, status: 'modified' as const, depth: 0, additions: 2, deletions: 1 },
+  { path: 'tests/', type: 'dir' as const, status: 'unchanged' as const, depth: 0 },
+  { path: 'tests/auth.test.ts', type: 'file' as const, status: 'added' as const, depth: 1, additions: 96, deletions: 0 },
+  { path: 'README.md', type: 'file' as const, status: 'deleted' as const, depth: 0, additions: 0, deletions: 45 },
+];
+
+// ── Shared Sub-Components ──
+
+function AgentCommPanel({ variant = 'default' }: { variant?: string }) {
+  const cls = `comm-panel comm-panel--${variant}`;
   return (
-    <div className="m1-command">
-      <div className="m1-topbar">
-        <span className="m1-topbar__title">HACKATHON COMMAND CENTER</span>
-        <div className="m1-topbar__status">
-          <span>12 active</span>
-          <span>3 debating</span>
-          <span>30 idle</span>
-        </div>
+    <div className={cls}>
+      <div className="comm-panel__header">
+        <span className="comm-panel__title">Agent Communication</span>
+        <span className="comm-panel__live-dot" />
       </div>
-
-      <div className="m1-sidebar-panel">
-        <h4>Agent Status</h4>
-        {agents.map((a) => (
-          <div key={a.name} className="m1-agent-row">
-            <span className={`m1-agent-dot m1-agent-dot--${a.status}`} />
-            <span className="m1-agent-name">{a.name}</span>
-            <span className="m1-agent-status">{a.label}</span>
+      <div className="comm-panel__messages">
+        {AGENT_MESSAGES.map((msg, i) => (
+          <div key={i} className={`comm-msg comm-msg--${msg.type}`}>
+            <div className="comm-msg__meta">
+              <span className="comm-msg__from">{msg.from}</span>
+              <span className="comm-msg__arrow">{'->'}</span>
+              <span className="comm-msg__to">{msg.to}</span>
+              <span className="comm-msg__time">{msg.time}</span>
+            </div>
+            <div className="comm-msg__text">{msg.text}</div>
           </div>
         ))}
       </div>
+    </div>
+  );
+}
 
-      <div className="m1-main-panel">
-        <div className="m1-log-entry m1-log-entry--success">
-          <span className="m1-timestamp">14:32:07</span>
-          T01-architect completed mockup review -- approved with 2 notes
-        </div>
-        <div className="m1-log-entry m1-log-entry--info">
-          <span className="m1-timestamp">14:31:42</span>
-          T03-strategist initiated competitive analysis phase
-        </div>
-        <div className="m1-log-entry m1-log-entry--warn">
-          <span className="m1-timestamp">14:30:18</span>
-          Judge-quality timeout on scoring batch -- retry queued
-        </div>
-        <div className="m1-log-entry m1-log-entry--info">
-          <span className="m1-timestamp">14:29:55</span>
-          hack-cos synced team manifests across 10 teams
-        </div>
-        <div className="m1-log-entry m1-log-entry--success">
-          <span className="m1-timestamp">14:28:30</span>
-          T04-builder deployed proof-of-concept to staging
-        </div>
-        <div className="m1-log-entry">
-          <span className="m1-timestamp">14:27:11</span>
-          System heartbeat -- all services nominal
+function FileTreePanel({ variant = 'default' }: { variant?: string }) {
+  const cls = `filetree-panel filetree-panel--${variant}`;
+  const totalAdded = FILE_TREE.filter(f => f.status === 'added').length;
+  const totalModified = FILE_TREE.filter(f => f.status === 'modified').length;
+  const totalDeleted = FILE_TREE.filter(f => f.status === 'deleted').length;
+
+  return (
+    <div className={cls}>
+      <div className="filetree-panel__header">
+        <span className="filetree-panel__title">File Directory</span>
+        <div className="filetree-panel__stats">
+          <span className="filetree-stat filetree-stat--added">+{totalAdded}</span>
+          <span className="filetree-stat filetree-stat--modified">~{totalModified}</span>
+          <span className="filetree-stat filetree-stat--deleted">-{totalDeleted}</span>
         </div>
       </div>
-
-      <div className="m1-right-panel">
-        <div className="m1-metric-block">
-          <div className="m1-metric-label">Active Agents</div>
-          <div className="m1-metric-value">12 / 45</div>
-          <div className="m1-metric-bar">
-            <div className="m1-metric-bar__fill" style={{ width: '27%' }} />
+      <div className="filetree-panel__tree">
+        {FILE_TREE.map((item, i) => (
+          <div
+            key={i}
+            className={`filetree-item filetree-item--${item.type} filetree-item--${item.status}`}
+            style={{ paddingLeft: `${item.depth * 16 + 8}px` }}
+          >
+            <span className="filetree-item__icon">
+              {item.type === 'dir' ? (item.status === 'unchanged' ? '\u25B6' : '\u25BC') : '\u2022'}
+            </span>
+            <span className="filetree-item__name">
+              {item.path.split('/').filter(Boolean).pop() || item.path}
+            </span>
+            {item.type === 'file' && item.status !== 'unchanged' && (
+              <span className="filetree-item__diff">
+                {item.additions ? <span className="filetree-diff--add">+{item.additions}</span> : null}
+                {item.deletions ? <span className="filetree-diff--del">-{item.deletions}</span> : null}
+              </span>
+            )}
+            {item.status !== 'unchanged' && (
+              <span className={`filetree-item__badge filetree-badge--${item.status}`}>
+                {item.status === 'added' ? 'A' : item.status === 'modified' ? 'M' : item.status === 'deleted' ? 'D' : ''}
+              </span>
+            )}
           </div>
-        </div>
-        <div className="m1-metric-block">
-          <div className="m1-metric-label">Tasks Completed</div>
-          <div className="m1-metric-value">847</div>
-          <div className="m1-metric-bar">
-            <div className="m1-metric-bar__fill" style={{ width: '73%' }} />
-          </div>
-        </div>
-        <div className="m1-metric-block">
-          <div className="m1-metric-label">Hackathon Progress</div>
-          <div className="m1-metric-value">68%</div>
-          <div className="m1-metric-bar">
-            <div className="m1-metric-bar__fill" style={{ width: '68%' }} />
-          </div>
-        </div>
-        <div className="m1-metric-block">
-          <div className="m1-metric-label">Avg Score</div>
-          <div className="m1-metric-value">7.4</div>
-          <div className="m1-metric-bar">
-            <div className="m1-metric-bar__fill" style={{ width: '74%' }} />
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );
 }
 
-function Mockup2_Editorial() {
+function LivePreviewPanel({ variant = 'default' }: { variant?: string }) {
+  const cls = `preview-panel preview-panel--${variant}`;
   return (
-    <div className="m2-editorial">
-      <div className="m2-hero">
-        <div>
-          <h3 className="m2-hero__headline">
-            Ten Teams.<br />
-            Forty-Five Agents.<br />
-            One Question.
-          </h3>
-          <p className="m2-hero__subhead">
-            The Autonomous Agent Hackathon enters hour 18. Teams are converging
-            on their final architectures while judges calibrate the scoring rubric.
-          </p>
+    <div className={cls}>
+      <div className="preview-panel__header">
+        <span className="preview-panel__title">Live UI Preview</span>
+        <span className="preview-panel__url">localhost:5173</span>
+      </div>
+      <div className="preview-panel__browser-bar">
+        <div className="preview-browser__dots">
+          <span className="preview-dot preview-dot--red" />
+          <span className="preview-dot preview-dot--yellow" />
+          <span className="preview-dot preview-dot--green" />
         </div>
-        <div>
-          <p className="m2-hero__pull-quote">
-            &ldquo;The best agent systems don&rsquo;t just solve problems --
-            they redefine what the problem was.&rdquo;
-          </p>
+        <div className="preview-browser__address">
+          https://team-01-app.web.app
         </div>
       </div>
-
-      <div className="m2-columns">
-        <div className="m2-column">
-          <h4>Leading Teams</h4>
-          <div className="m2-stat-row">
-            <span className="m2-stat-row__label">T01: First Light</span>
-            <span className="m2-stat-row__value">8.2</span>
+      <div className="preview-panel__canvas">
+        {/* Dashboard preview the agents built */}
+        <div className="preview-app">
+          <div className="preview-app__header">
+            <div className="preview-app__logo">TeamApp</div>
+            <div className="preview-app__nav">
+              <span className="preview-nav-item preview-nav-item--active">Dashboard</span>
+              <span className="preview-nav-item">Analytics</span>
+              <span className="preview-nav-item">Settings</span>
+            </div>
           </div>
-          <div className="m2-stat-row">
-            <span className="m2-stat-row__label">T05: Signal Fire</span>
-            <span className="m2-stat-row__value">7.9</span>
-          </div>
-          <div className="m2-stat-row">
-            <span className="m2-stat-row__label">T03: Terraform</span>
-            <span className="m2-stat-row__value">7.6</span>
-          </div>
-          <div className="m2-stat-row">
-            <span className="m2-stat-row__label">T07: Threshold</span>
-            <span className="m2-stat-row__value">7.4</span>
-          </div>
-        </div>
-        <div className="m2-column">
-          <h4>Current Phase</h4>
-          <p>
-            All ten teams have progressed past the initial debate phase.
-            Seven are in active execution, two are running informed debates
-            on revised strategies, and one is presenting to the judge panel.
-          </p>
-        </div>
-        <div className="m2-column">
-          <h4>Key Metrics</h4>
-          <div className="m2-stat-row">
-            <span className="m2-stat-row__label">Tasks completed</span>
-            <span className="m2-stat-row__value">847</span>
-          </div>
-          <div className="m2-stat-row">
-            <span className="m2-stat-row__label">Debates held</span>
-            <span className="m2-stat-row__value">32</span>
-          </div>
-          <div className="m2-stat-row">
-            <span className="m2-stat-row__label">Code commits</span>
-            <span className="m2-stat-row__value">1,203</span>
-          </div>
-          <div className="m2-stat-row">
-            <span className="m2-stat-row__label">Hours elapsed</span>
-            <span className="m2-stat-row__value">18.4</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Mockup3_Brutalist() {
-  return (
-    <div className="m3-brutalist">
-      <div className="m3-topstrip">
-        <span>AUTONOMOUS AGENT HACKATHON</span>
-        <span>HOUR 18 / LIVE</span>
-      </div>
-
-      <div className="m3-grid">
-        <div className="m3-cell m3-cell--highlight">
-          <span className="m3-cell__label">AGENTS ONLINE</span>
-          <span className="m3-cell__value">45</span>
-        </div>
-        <div className="m3-cell">
-          <span className="m3-cell__label">ACTIVE NOW</span>
-          <span className="m3-cell__value">12</span>
-        </div>
-        <div className="m3-cell m3-cell--dark">
-          <span className="m3-cell__label">TEAMS</span>
-          <span className="m3-cell__value">10</span>
-        </div>
-        <div className="m3-cell">
-          <span className="m3-cell__label">AVG SCORE</span>
-          <span className="m3-cell__value">7.4</span>
-        </div>
-
-        <div className="m3-cell m3-cell--double m3-cell--dark">
-          <span className="m3-cell__label">TOP PERFORMERS</span>
-          <ul className="m3-cell__list">
-            <li>T01: FIRST LIGHT -- 8.2</li>
-            <li>T05: SIGNAL FIRE -- 7.9</li>
-            <li>T03: TERRAFORM -- 7.6</li>
-            <li>T07: THRESHOLD -- 7.4</li>
-          </ul>
-        </div>
-        <div className="m3-cell m3-cell--highlight">
-          <span className="m3-cell__label">TASKS DONE</span>
-          <span className="m3-cell__value">847</span>
-        </div>
-        <div className="m3-cell">
-          <span className="m3-cell__label">DEBATES</span>
-          <span className="m3-cell__value">32</span>
-        </div>
-      </div>
-
-      <div className="m3-footer-strip">
-        FORM FOLLOWS FUNCTION -- NO DECORATION -- RAW DATA
-      </div>
-    </div>
-  );
-}
-
-function Mockup4_OrganicFlow() {
-  const circumference = 2 * Math.PI * 34;
-
-  const rings = [
-    { label: 'Completion', pct: 68 },
-    { label: 'Quality', pct: 82 },
-    { label: 'Velocity', pct: 55 },
-  ];
-
-  return (
-    <div className="m4-organic">
-      <div className="m4-blob m4-blob--1" />
-      <div className="m4-blob m4-blob--2" />
-      <div className="m4-blob m4-blob--3" />
-
-      <div className="m4-content">
-        <h3 className="m4-greeting">Good afternoon</h3>
-        <p className="m4-subtitle">Hackathon is 68% complete -- 10 teams competing</p>
-
-        <div className="m4-cards">
-          <div className="m4-card">
-            <div className="m4-card__icon">A</div>
-            <div className="m4-card__title">Active Agents</div>
-            <div className="m4-card__value">12</div>
-            <div className="m4-card__trend">+3 since last hour</div>
-          </div>
-          <div className="m4-card">
-            <div className="m4-card__icon">T</div>
-            <div className="m4-card__title">Tasks Done</div>
-            <div className="m4-card__value">847</div>
-            <div className="m4-card__trend">+42 this hour</div>
-          </div>
-          <div className="m4-card">
-            <div className="m4-card__icon">S</div>
-            <div className="m4-card__title">Avg Score</div>
-            <div className="m4-card__value">7.4</div>
-            <div className="m4-card__trend">+0.3 improvement</div>
-          </div>
-        </div>
-
-        <div className="m4-progress-ring">
-          <div className="m4-ring-group">
-            {rings.map((ring) => (
-              <div key={ring.label} className="m4-ring">
-                <svg viewBox="0 0 76 76">
-                  <circle className="m4-ring-bg" cx="38" cy="38" r="34" />
-                  <circle
-                    className="m4-ring-fill"
-                    cx="38"
-                    cy="38"
-                    r="34"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={circumference - (circumference * ring.pct) / 100}
-                  />
-                </svg>
-                <span className="m4-ring__label">{ring.label} {ring.pct}%</span>
+          <div className="preview-app__body">
+            <div className="preview-app__greeting">Welcome back</div>
+            <div className="preview-app__cards">
+              <div className="preview-app__card">
+                <div className="preview-card__label">Users</div>
+                <div className="preview-card__value">1,247</div>
+                <div className="preview-card__bar"><div className="preview-card__fill" style={{ width: '72%' }} /></div>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Mockup5_SwissGrid() {
-  const teams = [
-    { name: 'First Light', lock: 8.5, rev: 7.8, impact: 8.0, proof: 7.5, craft: 8.2 },
-    { name: 'Grain', lock: 7.2, rev: 6.5, impact: 7.8, proof: 6.0, craft: 7.0 },
-    { name: 'Terraform', lock: 7.8, rev: 7.5, impact: 7.0, proof: 8.2, craft: 7.6 },
-    { name: 'Parallax', lock: 6.8, rev: 7.0, impact: 6.5, proof: 7.2, craft: 6.8 },
-    { name: 'Signal Fire', lock: 8.0, rev: 8.2, impact: 7.5, proof: 7.0, craft: 7.9 },
-  ];
-
-  return (
-    <div className="m5-swiss">
-      <div className="m5-rule m5-rule--thick" />
-      <div className="m5-top-row">
-        <div className="m5-date">March 14, 2026</div>
-        <h3 className="m5-title">Hackathon</h3>
-      </div>
-      <div className="m5-rule" />
-
-      <div className="m5-data-grid">
-        <div className="m5-data-cell m5-data-cell--header">Team</div>
-        <div className="m5-data-cell m5-data-cell--header">Lock-In</div>
-        <div className="m5-data-cell m5-data-cell--header">Revenue</div>
-        <div className="m5-data-cell m5-data-cell--header">Impact</div>
-        <div className="m5-data-cell m5-data-cell--header">Proof</div>
-        <div className="m5-data-cell m5-data-cell--header">Craft</div>
-
-        {teams.map((t) => (
-          <>
-            <div key={`${t.name}-name`} className="m5-data-cell m5-data-cell--label">{t.name}</div>
-            <div key={`${t.name}-lock`} className={`m5-data-cell${t.lock >= 8.0 ? ' m5-data-cell--accent' : ''}`}>{t.lock.toFixed(1)}</div>
-            <div key={`${t.name}-rev`} className={`m5-data-cell${t.rev >= 8.0 ? ' m5-data-cell--accent' : ''}`}>{t.rev.toFixed(1)}</div>
-            <div key={`${t.name}-impact`} className={`m5-data-cell${t.impact >= 8.0 ? ' m5-data-cell--accent' : ''}`}>{t.impact.toFixed(1)}</div>
-            <div key={`${t.name}-proof`} className={`m5-data-cell${t.proof >= 8.0 ? ' m5-data-cell--accent' : ''}`}>{t.proof.toFixed(1)}</div>
-            <div key={`${t.name}-craft`} className={`m5-data-cell${t.craft >= 8.0 ? ' m5-data-cell--accent' : ''}`}>{t.craft.toFixed(1)}</div>
-          </>
-        ))}
-      </div>
-
-      <div className="m5-bottom-row">
-        <div className="m5-kpi">
-          <div className="m5-kpi__label">Total Agents</div>
-          <div className="m5-kpi__value">45</div>
-        </div>
-        <div className="m5-kpi">
-          <div className="m5-kpi__label">Active Now</div>
-          <div className="m5-kpi__value">12</div>
-        </div>
-        <div className="m5-kpi">
-          <div className="m5-kpi__label">Tasks Done</div>
-          <div className="m5-kpi__value">847</div>
-        </div>
-        <div className="m5-kpi">
-          <div className="m5-kpi__label">Hours Left</div>
-          <div className="m5-kpi__value">5.6</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Mockup6_NeonDashboard() {
-  const barHeights = [45, 72, 38, 85, 62, 90, 55, 78, 42, 68, 95, 50];
-
-  return (
-    <div className="m6-neon">
-      <div className="m6-header-row">
-        <h3>HACKATHON LIVE</h3>
-        <span className="m6-header-row__time">14:32 UTC -- HOUR 18</span>
-      </div>
-
-      <div className="m6-cards-row">
-        <div className="m6-stat-card m6-stat-card--cyan">
-          <div className="m6-stat-card__label">Active Agents</div>
-          <div className="m6-stat-card__value">12</div>
-        </div>
-        <div className="m6-stat-card m6-stat-card--magenta">
-          <div className="m6-stat-card__label">Tasks / Hour</div>
-          <div className="m6-stat-card__value">42</div>
-        </div>
-        <div className="m6-stat-card m6-stat-card--green">
-          <div className="m6-stat-card__label">Top Score</div>
-          <div className="m6-stat-card__value">8.2</div>
-        </div>
-        <div className="m6-stat-card m6-stat-card--yellow">
-          <div className="m6-stat-card__label">Debates Live</div>
-          <div className="m6-stat-card__value">3</div>
-        </div>
-      </div>
-
-      <div className="m6-bottom-grid">
-        <div className="m6-chart-panel">
-          <div className="m6-chart-panel__title">Task Throughput (12h)</div>
-          <div className="m6-bar-chart">
-            {barHeights.map((h, i) => (
-              <div
-                key={i}
-                className={`m6-bar ${i % 2 === 0 ? 'm6-bar--cyan' : 'm6-bar--magenta'}`}
-                style={{ height: `${h}%` }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="m6-chart-panel">
-          <div className="m6-chart-panel__title">Live Activity Feed</div>
-          <div className="m6-feed">
-            <div className="m6-feed-item">
-              <span className="m6-feed-item__dot m6-feed-item__dot--cyan" />
-              <span className="m6-feed-item__text">T01-architect completed design review</span>
-              <span className="m6-feed-item__time">2m ago</span>
+              <div className="preview-app__card">
+                <div className="preview-card__label">Revenue</div>
+                <div className="preview-card__value">$48.2k</div>
+                <div className="preview-card__bar"><div className="preview-card__fill" style={{ width: '85%' }} /></div>
+              </div>
+              <div className="preview-app__card">
+                <div className="preview-card__label">Tasks</div>
+                <div className="preview-card__value">342</div>
+                <div className="preview-card__bar"><div className="preview-card__fill" style={{ width: '58%' }} /></div>
+              </div>
             </div>
-            <div className="m6-feed-item">
-              <span className="m6-feed-item__dot m6-feed-item__dot--magenta" />
-              <span className="m6-feed-item__text">T05-strategist initiated debate round 3</span>
-              <span className="m6-feed-item__time">4m ago</span>
-            </div>
-            <div className="m6-feed-item">
-              <span className="m6-feed-item__dot m6-feed-item__dot--green" />
-              <span className="m6-feed-item__text">T03-builder deployed staging build</span>
-              <span className="m6-feed-item__time">7m ago</span>
-            </div>
-            <div className="m6-feed-item">
-              <span className="m6-feed-item__dot m6-feed-item__dot--cyan" />
-              <span className="m6-feed-item__text">hack-judge-quality scored T07 presentation</span>
-              <span className="m6-feed-item__time">12m ago</span>
-            </div>
-            <div className="m6-feed-item">
-              <span className="m6-feed-item__dot m6-feed-item__dot--magenta" />
-              <span className="m6-feed-item__text">T02-coord triggered research phase</span>
-              <span className="m6-feed-item__time">15m ago</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Mockup7_CardDeck() {
-  const cards = [
-    { icon: 'T01', title: 'First Light', desc: 'Feynman-inspired architecture, Rams-level craft', count: 82, label: 'tasks done' },
-    { icon: 'T02', title: 'Grain', desc: 'Eames-informed design, Taleb-driven strategy', count: 67, label: 'tasks done' },
-    { icon: 'T03', title: 'Terraform', desc: 'Meadows systems thinking, Grove execution', count: 75, label: 'tasks done' },
-    { icon: 'T04', title: 'Parallax', desc: 'Lovelace logic, Norman usability, Chanel style', count: 58, label: 'tasks done' },
-    { icon: 'T05', title: 'Signal Fire', desc: 'Curie rigor, Fuller innovation, Catmull leadership', count: 91, label: 'tasks done' },
-    { icon: 'T06', title: 'Groundwork', desc: 'Jacobs urbanism, Aristotle logic, Tubman courage', count: 44, label: 'tasks done' },
-    { icon: 'T07', title: 'Threshold', desc: 'Shannon information theory, Matsushita ops', count: 73, label: 'tasks done' },
-    { icon: 'T08', title: 'Undertow', desc: 'Feynman physics, Eames design, Grove strategy', count: 62, label: 'tasks done' },
-    { icon: 'T09', title: 'Meridian', desc: 'Meadows dynamics, Rams economy, Taleb risk', count: 55, label: 'tasks done' },
-    { icon: 'T10', title: 'Sightline', desc: 'Lovelace computation, Noguchi form, Tubman resolve', count: 48, label: 'tasks done' },
-  ];
-
-  return (
-    <div className="m7-deck">
-      <div className="m7-deck-header">
-        <h3>Team Overview</h3>
-        <div className="m7-filter-pills">
-          <button className="m7-pill m7-pill--active" type="button">All</button>
-          <button className="m7-pill" type="button">Active</button>
-          <button className="m7-pill" type="button">Top 5</button>
-        </div>
-      </div>
-
-      <div className="m7-card-grid">
-        {cards.map((c) => (
-          <div key={c.icon} className="m7-card">
-            <span className="m7-card__emoji">{c.icon}</span>
-            <div className="m7-card__title">{c.title}</div>
-            <div className="m7-card__desc">{c.desc}</div>
-            <div className="m7-card__footer">
-              <span className="m7-card__count">{c.count}</span>
-              <span className="m7-card__label">{c.label}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function Mockup8_DataVizForward() {
-  const sparkData = [
-    { label: 'Agents', value: '45', bars: [60, 45, 80, 35, 90, 55, 70] },
-    { label: 'Active', value: '12', bars: [30, 65, 40, 85, 50, 75, 60] },
-    { label: 'Tasks/hr', value: '42', bars: [50, 70, 45, 80, 60, 90, 55] },
-    { label: 'Debates', value: '32', bars: [40, 55, 75, 35, 65, 50, 80] },
-    { label: 'Score', value: '7.4', bars: [70, 60, 85, 50, 75, 65, 90] },
-  ];
-
-  const circumference = 2 * Math.PI * 46;
-
-  return (
-    <div className="m8-dataviz">
-      <div className="m8-header-bar">
-        <h3>Analytics Dashboard</h3>
-        <span className="m8-live-badge">
-          <span className="m8-live-dot" />
-          LIVE DATA
-        </span>
-      </div>
-
-      <div className="m8-viz-grid">
-        <div className="m8-sparkline-row">
-          {sparkData.map((s) => (
-            <div key={s.label} className="m8-spark-card">
-              <div className="m8-spark-card__label">{s.label}</div>
-              <div className="m8-spark-card__value">{s.value}</div>
-              <div className="m8-sparkline">
-                {s.bars.map((h, i) => (
-                  <div key={i} className="m8-sparkline__bar" style={{ height: `${h}%` }} />
+            <div className="preview-app__chart">
+              <div className="preview-chart__title">Activity</div>
+              <div className="preview-chart__bars">
+                {[40, 65, 45, 80, 55, 70, 90, 60, 75, 50, 85, 68].map((h, i) => (
+                  <div key={i} className="preview-chart__bar" style={{ height: `${h}%` }} />
                 ))}
               </div>
             </div>
-          ))}
+          </div>
         </div>
+      </div>
+    </div>
+  );
+}
 
-        <div className="m8-main-chart">
-          <div className="m8-main-chart__title">Task Completion Over Time</div>
-          <div className="m8-area-chart">
-            <svg viewBox="0 0 400 140" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="m8-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#64ffda" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#64ffda" stopOpacity="0.02" />
-                </linearGradient>
-              </defs>
-              <path
-                d="M0 120 Q50 100 100 80 T200 60 T300 40 T400 20 V140 H0 Z"
-                fill="url(#m8-grad)"
-              />
-              <path
-                d="M0 120 Q50 100 100 80 T200 60 T300 40 T400 20"
-                fill="none"
-                stroke="#64ffda"
-                strokeWidth="2"
-              />
-            </svg>
-          </div>
-        </div>
 
-        <div className="m8-donut-panel">
-          <div className="m8-donut-panel__title">Phase Distribution</div>
-          <div className="m8-donut">
-            <svg viewBox="0 0 100 100">
-              <circle className="m8-donut-bg" cx="50" cy="50" r="46" />
-              <circle
-                className="m8-donut-seg1"
-                cx="50"
-                cy="50"
-                r="46"
-                strokeDasharray={circumference}
-                strokeDashoffset={circumference * 0.5}
-                transform="rotate(-90 50 50)"
-              />
-              <circle
-                className="m8-donut-seg2"
-                cx="50"
-                cy="50"
-                r="46"
-                strokeDasharray={circumference}
-                strokeDashoffset={circumference * 0.75}
-                transform="rotate(90 50 50)"
-              />
-              <circle
-                className="m8-donut-seg3"
-                cx="50"
-                cy="50"
-                r="46"
-                strokeDasharray={circumference}
-                strokeDashoffset={circumference * 0.85}
-                transform="rotate(180 50 50)"
-              />
-            </svg>
-          </div>
-          <div className="m8-donut-legend">
-            <div className="m8-legend-row">
-              <span className="m8-legend-dot m8-legend-dot--1" />
-              <span className="m8-legend-label">Executing</span>
-              <span className="m8-legend-value">50%</span>
-            </div>
-            <div className="m8-legend-row">
-              <span className="m8-legend-dot m8-legend-dot--2" />
-              <span className="m8-legend-label">Debating</span>
-              <span className="m8-legend-value">25%</span>
-            </div>
-            <div className="m8-legend-row">
-              <span className="m8-legend-dot m8-legend-dot--3" />
-              <span className="m8-legend-label">Reviewing</span>
-              <span className="m8-legend-value">15%</span>
-            </div>
-          </div>
-        </div>
+// ── 10 Mockup Layouts ──
+
+function Mockup1_Triptych() {
+  return (
+    <div className="m1-triptych">
+      <AgentCommPanel variant="triptych" />
+      <FileTreePanel variant="triptych" />
+      <LivePreviewPanel variant="triptych" />
+    </div>
+  );
+}
+
+function Mockup2_TabbedFocus() {
+  const [activeTab, setActiveTab] = useState<'comm' | 'files' | 'preview'>('comm');
+
+  return (
+    <div className="m2-tabbed">
+      <div className="m2-tabbed__tabs">
+        <button
+          type="button"
+          className={`m2-tab ${activeTab === 'comm' ? 'm2-tab--active' : ''}`}
+          onClick={() => setActiveTab('comm')}
+        >
+          Agent Communication
+        </button>
+        <button
+          type="button"
+          className={`m2-tab ${activeTab === 'files' ? 'm2-tab--active' : ''}`}
+          onClick={() => setActiveTab('files')}
+        >
+          File Directory
+        </button>
+        <button
+          type="button"
+          className={`m2-tab ${activeTab === 'preview' ? 'm2-tab--active' : ''}`}
+          onClick={() => setActiveTab('preview')}
+        >
+          Live Preview
+        </button>
+      </div>
+      <div className="m2-tabbed__content">
+        {activeTab === 'comm' && <AgentCommPanel variant="tabbed" />}
+        {activeTab === 'files' && <FileTreePanel variant="tabbed" />}
+        {activeTab === 'preview' && <LivePreviewPanel variant="tabbed" />}
+      </div>
+    </div>
+  );
+}
+
+function Mockup3_AsymmetricSplit() {
+  return (
+    <div className="m3-asymmetric">
+      <div className="m3-asymmetric__main">
+        <LivePreviewPanel variant="asymmetric" />
+      </div>
+      <div className="m3-asymmetric__sidebar">
+        <AgentCommPanel variant="asymmetric" />
+        <FileTreePanel variant="asymmetric" />
+      </div>
+    </div>
+  );
+}
+
+function Mockup4_StackedRows() {
+  return (
+    <div className="m4-stacked">
+      <AgentCommPanel variant="stacked" />
+      <FileTreePanel variant="stacked" />
+      <LivePreviewPanel variant="stacked" />
+    </div>
+  );
+}
+
+function Mockup5_LShape() {
+  return (
+    <div className="m5-lshape">
+      <div className="m5-lshape__top">
+        <LivePreviewPanel variant="lshape" />
+      </div>
+      <div className="m5-lshape__bottom">
+        <AgentCommPanel variant="lshape" />
+        <FileTreePanel variant="lshape" />
+      </div>
+    </div>
+  );
+}
+
+function Mockup6_Terminal() {
+  return (
+    <div className="m6-terminal">
+      <div className="m6-terminal__topbar">
+        <span>TEAM OBSERVATION TERMINAL</span>
+        <span className="m6-terminal__session">session: t01-checkpoint-18</span>
+      </div>
+      <div className="m6-terminal__panes">
+        <AgentCommPanel variant="terminal" />
+        <FileTreePanel variant="terminal" />
+        <LivePreviewPanel variant="terminal" />
+      </div>
+    </div>
+  );
+}
+
+function Mockup7_FloatingCards() {
+  return (
+    <div className="m7-floating">
+      <div className="m7-floating__card m7-floating__card--comm">
+        <AgentCommPanel variant="floating" />
+      </div>
+      <div className="m7-floating__card m7-floating__card--files">
+        <FileTreePanel variant="floating" />
+      </div>
+      <div className="m7-floating__card m7-floating__card--preview">
+        <LivePreviewPanel variant="floating" />
+      </div>
+    </div>
+  );
+}
+
+function Mockup8_CommandBridge() {
+  return (
+    <div className="m8-bridge">
+      <div className="m8-bridge__left">
+        <FileTreePanel variant="bridge" />
+      </div>
+      <div className="m8-bridge__center">
+        <LivePreviewPanel variant="bridge" />
+      </div>
+      <div className="m8-bridge__right">
+        <AgentCommPanel variant="bridge" />
       </div>
     </div>
   );
@@ -593,151 +319,107 @@ function Mockup8_DataVizForward() {
 function Mockup9_MinimalZen() {
   return (
     <div className="m9-zen">
-      <div className="m9-zen-title">Hackathon Status</div>
-
-      <div className="m9-zen-main">
-        <div className="m9-zen-number">45</div>
-        <div className="m9-zen-label">
-          autonomous agents working across ten teams toward a single objective
-        </div>
+      <div className="m9-zen__label">Team Observation</div>
+      <div className="m9-zen__panels">
+        <AgentCommPanel variant="zen" />
+        <div className="m9-zen__divider" />
+        <FileTreePanel variant="zen" />
+        <div className="m9-zen__divider" />
+        <LivePreviewPanel variant="zen" />
       </div>
-
-      <div className="m9-zen-divider" />
-
-      <div className="m9-zen-grid">
-        <div className="m9-zen-stat">
-          <div className="m9-zen-stat__value">12</div>
-          <div className="m9-zen-stat__label">Active</div>
-        </div>
-        <div className="m9-zen-stat">
-          <div className="m9-zen-stat__value">847</div>
-          <div className="m9-zen-stat__label">Tasks</div>
-        </div>
-        <div className="m9-zen-stat">
-          <div className="m9-zen-stat__value">7.4</div>
-          <div className="m9-zen-stat__label">Avg Score</div>
-        </div>
-        <div className="m9-zen-stat">
-          <div className="m9-zen-stat__value">32</div>
-          <div className="m9-zen-stat__label">Debates</div>
-        </div>
-        <div className="m9-zen-stat">
-          <div className="m9-zen-stat__value">18</div>
-          <div className="m9-zen-stat__label">Hours</div>
-        </div>
-      </div>
-
-      <div className="m9-zen-accent" />
     </div>
   );
 }
 
-function Mockup10_PaulRandTribute() {
+function Mockup10_PaulRand() {
   return (
     <div className="m10-rand">
-      <div className="m10-shapes">
-        <div className="m10-shape m10-shape--circle-red" />
-        <div className="m10-shape m10-shape--rect-blue" />
-        <div className="m10-shape m10-shape--circle-yellow" />
-        <div className="m10-shape m10-shape--rect-green" />
-        <div className="m10-shape m10-shape--triangle" />
+      <div className="m10-rand__shapes">
+        <div className="m10-rand__shape m10-rand__shape--circle" />
+        <div className="m10-rand__shape m10-rand__shape--rect" />
+        <div className="m10-rand__shape m10-rand__shape--triangle" />
       </div>
-
-      <div className="m10-overlay">
-        <h3 className="m10-headline">
-          Agent<br />
-          Hackathon
-        </h3>
-
-        <div className="m10-stat-block m10-stat-block--red">
-          <div className="m10-stat-block__value">45</div>
-          <div className="m10-stat-block__label">Agents</div>
+      <div className="m10-rand__content">
+        <div className="m10-rand__panel m10-rand__panel--comm">
+          <AgentCommPanel variant="rand" />
         </div>
-        <div className="m10-stat-block m10-stat-block--blue">
-          <div className="m10-stat-block__value">10</div>
-          <div className="m10-stat-block__label">Teams</div>
+        <div className="m10-rand__panel m10-rand__panel--files">
+          <FileTreePanel variant="rand" />
         </div>
-        <div className="m10-stat-block m10-stat-block--yellow">
-          <div className="m10-stat-block__value">847</div>
-          <div className="m10-stat-block__label">Tasks</div>
+        <div className="m10-rand__panel m10-rand__panel--preview">
+          <LivePreviewPanel variant="rand" />
         </div>
-        <div className="m10-stat-block m10-stat-block--green">
-          <div className="m10-stat-block__value">8.2</div>
-          <div className="m10-stat-block__label">Top Score</div>
-        </div>
-
-        <div className="m10-bottom-strip">
-          <span className="m10-tagline">Form and content are one</span>
-          <span className="m10-mark">RAND</span>
-        </div>
+      </div>
+      <div className="m10-rand__tagline">
+        observe -- evaluate -- iterate
       </div>
     </div>
   );
 }
 
-// ──────────────────────────────────────────────────────
-// Mockup metadata for rendering
-// ──────────────────────────────────────────────────────
+
+// ── Mockup Registry ──
+
 const MOCKUPS: { id: string; title: string; angle: string; Component: React.FC }[] = [
   {
-    id: 'command-center',
-    title: '01 -- Command Center',
-    angle: 'Terminal aesthetic, dense data, monospace',
-    Component: Mockup1_CommandCenter,
+    id: 'triptych',
+    title: '01 -- Triptych',
+    angle: 'Three equal columns, balanced hierarchy, clean separation',
+    Component: Mockup1_Triptych,
   },
   {
-    id: 'editorial',
-    title: '02 -- Editorial',
-    angle: 'Magazine layout, serif typography, editorial whitespace',
-    Component: Mockup2_Editorial,
+    id: 'tabbed-focus',
+    title: '02 -- Tabbed Focus',
+    angle: 'One panel at a time, tab navigation, decluttered observation',
+    Component: Mockup2_TabbedFocus,
   },
   {
-    id: 'brutalist',
-    title: '03 -- Brutalist',
-    angle: 'Raw, exposed grid, system fonts, no decoration',
-    Component: Mockup3_Brutalist,
+    id: 'asymmetric-split',
+    title: '03 -- Asymmetric Split',
+    angle: 'Preview-dominant left panel, comms + files stacked right',
+    Component: Mockup3_AsymmetricSplit,
   },
   {
-    id: 'organic-flow',
-    title: '04 -- Organic Flow',
-    angle: 'Curved shapes, gradients, glassmorphism',
-    Component: Mockup4_OrganicFlow,
+    id: 'stacked-rows',
+    title: '04 -- Stacked Rows',
+    angle: 'Full-width horizontal rows, mobile-first, scrollable',
+    Component: Mockup4_StackedRows,
   },
   {
-    id: 'swiss-grid',
-    title: '05 -- Swiss Grid',
-    angle: 'International Typographic Style, mathematical precision',
-    Component: Mockup5_SwissGrid,
+    id: 'l-shape',
+    title: '05 -- L-Shape Grid',
+    angle: 'Preview spans top, comms + files split bottom, newspaper grid',
+    Component: Mockup5_LShape,
   },
   {
-    id: 'neon-dashboard',
-    title: '06 -- Neon Dashboard',
-    angle: 'Dark mode, neon accents, cyberpunk data viz',
-    Component: Mockup6_NeonDashboard,
+    id: 'terminal',
+    title: '06 -- Terminal',
+    angle: 'CLI aesthetic, monospace, dark panes, hacker observation deck',
+    Component: Mockup6_Terminal,
   },
   {
-    id: 'card-deck',
-    title: '07 -- Card Deck',
-    angle: 'Card-based UI, tactile surfaces, warm palette',
-    Component: Mockup7_CardDeck,
+    id: 'floating-cards',
+    title: '07 -- Floating Cards',
+    angle: 'Overlapping cards with depth, shadows, dimensional layers',
+    Component: Mockup7_FloatingCards,
   },
   {
-    id: 'data-viz-forward',
-    title: '08 -- Data Viz Forward',
-    angle: 'Charts as primary content, sparklines, progress rings',
-    Component: Mockup8_DataVizForward,
+    id: 'command-bridge',
+    title: '08 -- Command Bridge',
+    angle: 'IDE layout: files left, preview center, comms right',
+    Component: Mockup8_CommandBridge,
   },
   {
     id: 'minimal-zen',
     title: '09 -- Minimal Zen',
-    angle: 'Extreme minimalism, whisper typography, negative space',
+    angle: 'Extreme minimalism, whisper type, abundant whitespace',
     Component: Mockup9_MinimalZen,
   },
   {
-    id: 'paul-rand-tribute',
-    title: '10 -- Paul Rand Tribute',
+    id: 'paul-rand',
+    title: '10 -- Paul Rand',
     angle: 'Geometric shapes, primary colors on black, playful conviction',
-    Component: Mockup10_PaulRandTribute,
+    Component: Mockup10_PaulRand,
   },
 ];
 
@@ -747,9 +429,11 @@ export function LabsPage() {
       <div className="labs-header">
         <h2>Labs</h2>
         <p>
-          Ten explorations of the hackathon dashboard -- each one a different
-          design philosophy, information hierarchy, and visual language.
-          These are not incremental variations. They are distinct visions.
+          Ten layout explorations for the team observation dashboard. Each mockup
+          shows the same three views -- agent communication, file directory, and
+          live UI preview -- arranged with a different design philosophy and
+          information hierarchy. These are the visuals reported to judges at each
+          hourly checkpoint.
         </p>
       </div>
 

@@ -4,4 +4,8 @@ export { ChatPage } from './ChatPage';
 export { TeamsPage } from './TeamsPage';
 export { ScoreboardPage } from './ScoreboardPage';
 export { LabsPage } from './LabsPage';
+export { LiveViewPage } from './LiveViewPage';
 export { InlineFeedback, AgentDashboard } from './Feedback';
+export { RubricPage } from './RubricPage';
+export { DashboardPage } from './DashboardPage';
+export { CommentaryPage } from './CommentaryPage';

@@ -3,7 +3,7 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import './App.css'
 import { AuthProvider, useAuth } from './AuthContext'
 import LoginPage from './LoginPage'
-import { ErrorBoundary, AgentsPage, ChatPage, TeamsPage, ScoreboardPage, LabsPage, InlineFeedback } from './components'
+import { ErrorBoundary, AgentsPage, ChatPage, TeamsPage, ScoreboardPage, LabsPage, LiveViewPage, InlineFeedback, RubricPage, DashboardPage, CommentaryPage } from './components'
 
 // ── All customizable text in one place ──
 const APP_NAME = 'Agent Hackathon'
@@ -19,6 +19,9 @@ const navItems = [
   { id: 'scoreboard', path: '/scoreboard', label: 'Scoreboard', icon: 'trophy' },
   { id: 'chat', path: '/chat', label: 'Chat', icon: 'mail' },
   { id: 'labs', path: '/labs', label: 'Labs', icon: 'flask' },
+  { id: 'live', path: '/live', label: 'Live View', icon: 'eye' },
+  { id: 'rubric', path: '/rubric', label: 'Rubric', icon: 'clipboard' },
+  { id: 'commentary', path: '/commentary', label: 'Commentary', icon: 'headphones' },
 ]
 
 function NavIcon({ icon }: { icon: string }) {
@@ -34,6 +37,9 @@ function NavIcon({ icon }: { icon: string }) {
     case 'trophy': return <svg {...props}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
     case 'settings': return <svg {...props}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     case 'flask': return <svg {...props}><path d="M9 3h6v5.586a1 1 0 0 0 .293.707l4.414 4.414A3 3 0 0 1 17.586 20H6.414a3 3 0 0 1-2.121-5.121L8.707 10.465A1 1 0 0 0 9 9.758V3z"/><line x1="9" y1="3" x2="15" y2="3"/><path d="M7 15h10"/></svg>
+    case 'eye': return <svg {...props}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    case 'clipboard': return <svg {...props}><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+    case 'headphones': return <svg {...props}><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
     default: return null
   }
 }
@@ -202,12 +208,15 @@ function AuthenticatedApp() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<PageLayout user={userInfo} onSignOut={signOut}><PlaceholderPage title="Dashboard" /></PageLayout>} />
+        <Route path="/" element={<PageLayout user={userInfo} onSignOut={signOut}><DashboardPage /></PageLayout>} />
         <Route path="/agents" element={<PageLayout user={userInfo} onSignOut={signOut}><AgentsPage /></PageLayout>} />
         <Route path="/teams" element={<PageLayout user={userInfo} onSignOut={signOut}><TeamsPage /></PageLayout>} />
         <Route path="/scoreboard" element={<PageLayout user={userInfo} onSignOut={signOut}><ScoreboardPage /></PageLayout>} />
         <Route path="/chat" element={<PageLayout user={userInfo} onSignOut={signOut}><ChatPage /></PageLayout>} />
         <Route path="/labs" element={<PageLayout user={userInfo} onSignOut={signOut}><LabsPage /></PageLayout>} />
+        <Route path="/live" element={<PageLayout user={userInfo} onSignOut={signOut}><LiveViewPage /></PageLayout>} />
+        <Route path="/rubric" element={<PageLayout user={userInfo} onSignOut={signOut}><RubricPage /></PageLayout>} />
+        <Route path="/commentary" element={<PageLayout user={userInfo} onSignOut={signOut}><CommentaryPage /></PageLayout>} />
         <Route path="*" element={<PageLayout user={userInfo} onSignOut={signOut}><PlaceholderPage title="Dashboard" /></PageLayout>} />
       </Routes>
       <InlineFeedback />

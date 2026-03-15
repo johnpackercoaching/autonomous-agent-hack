@@ -1,0 +1,9 @@
+{
+  "hour": 1,
+  "arcPhase": "Discovery",
+  "objective": "Problem Selection",
+  "activeTeams": ["T01"],
+  "keyQuestion": "Which problem gives us the highest chance of scoring well on the judging rubric given our team's specific strengths?",
+  "expectedDeliverable": "Problem selection document with rubric alignment rationale",
+  "risk": "Analysis paralysis"
+}

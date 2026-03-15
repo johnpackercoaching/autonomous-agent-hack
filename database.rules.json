@@ -10,12 +10,47 @@
     },
     "agents": {
       ".read": "auth != null",
+      ".write": "auth != null",
       "$agentId": {
         "meta": {
           ".read": "auth != null",
           ".write": "auth != null"
         }
       }
+    },
+    "hackathon": {
+      ".read": true,
+      ".write": "auth != null",
+      "hours": {
+        "$hourId": {
+          "teams": {
+            "$teamId": {
+              ".read": true,
+              ".write": "auth != null"
+            }
+          }
+        }
+      },
+      "rubric": {
+        ".read": true,
+        ".write": "auth != null"
+      },
+      "timer": {
+        ".read": true,
+        ".write": "auth != null"
+      },
+      "status": {
+        ".read": true,
+        ".write": "auth != null"
+      },
+      "commentary": {
+        ".read": true,
+        ".write": "auth != null"
+      }
+    },
+    "teams": {
+      ".read": true,
+      ".write": "auth != null"
     }
   }
 }

@@ -4,3 +4,8 @@ dist
 .env.local
 *.log
 .firebase
+.active-hour
+.active-team
+.active-phase
+.tmp-system-prompt.md
+.tmp-user-message.md

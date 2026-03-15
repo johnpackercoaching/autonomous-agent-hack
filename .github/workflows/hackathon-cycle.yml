@@ -1,0 +1,122 @@
+name: Hackathon Cycle
+
+on:
+  workflow_dispatch:
+    inputs:
+      hour_number:
+        description: "Hour number (1-200)"
+        required: true
+        type: string
+      team_id:
+        description: "Team ID (T01-T10) or 'batch' for all active teams"
+        required: true
+        type: string
+      mode:
+        description: "Run mode: single-team, batch, or continuous"
+        required: false
+        type: string
+        default: "single-team"
+
+concurrency:
+  group: hackathon-${{ inputs.team_id }}-${{ inputs.hour_number }}
+  cancel-in-progress: false
+
+jobs:
+  hackathon-cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Setup Firebase credentials
+        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > /tmp/firebase-service-account.json
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Validate Claude auth
+        run: claude --version
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Setup agent definitions
+        run: |
+          mkdir -p ~/.claude/agents
+          if [ -d ".claude/agents" ]; then
+            cp .claude/agents/hack-*.md ~/.claude/agents/ 2>/dev/null || true
+          fi
+
+      - name: Run single team hour
+        if: inputs.mode == 'single-team' && inputs.team_id != 'batch'
+        run: |
+          node scripts/run-team-hour.js \
+            --team "${{ inputs.team_id }}" \
+            --hour "${{ inputs.hour_number }}"
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-service-account.json
+        timeout-minutes: 75
+
+      - name: Run batch (all active teams)
+        if: inputs.mode == 'batch' || inputs.team_id == 'batch'
+        run: |
+          node scripts/hackathon-orchestrator.js \
+            --hour "${{ inputs.hour_number }}"
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-service-account.json
+        timeout-minutes: 75
+
+      - name: Run continuous mode
+        if: inputs.mode == 'continuous'
+        run: |
+          HOUR=${{ inputs.hour_number }}
+          END_HOUR=$((HOUR + 4))
+          if [ $END_HOUR -gt 200 ]; then END_HOUR=200; fi
+          node scripts/hackathon-orchestrator.js \
+            --start-hour "$HOUR" \
+            --end-hour "$END_HOUR"
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-service-account.json
+        timeout-minutes: 75
+
+      - name: Commit artifacts
+        run: |
+          git config user.name "hackathon-bot"
+          git config user.email "hackathon-bot@autonomous-agent-hack.firebaseapp.com"
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "hackathon: Hour ${{ inputs.hour_number }} - ${{ inputs.team_id }} artifacts"
+            git push
+          fi
+
+      - name: Trigger next hour (continuous mode)
+        if: inputs.mode == 'continuous'
+        run: |
+          NEXT_HOUR=$(( ${{ inputs.hour_number }} + 5 ))
+          if [ $NEXT_HOUR -le 200 ]; then
+            echo "Next batch starts at Hour $NEXT_HOUR"
+            echo "Dispatch: hour_number=$NEXT_HOUR, team_id=${{ inputs.team_id }}, mode=continuous"
+          else
+            echo "All 200 hours complete!"
+          fi

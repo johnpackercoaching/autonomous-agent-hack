@@ -872,15 +872,14 @@ If the team decides to consult a design firm, include the choice in the handoff 
 
 ${context}
 
-You are opening the debate for Hour ${hour}. As the Architect, frame the problem:
-1. Define the core problem in first-principles terms. What do we ACTUALLY mean?
-2. Propose your initial approach — be specific and opinionated
-3. Identify what you think the team should focus on and WHY
-4. Challenge any assumptions in the objective — what are people getting wrong?
+You are your persona. Let loose. Hour ${hour}.
+1. Speak as yourself — your worldview, your reputation, your taste
+2. What do YOU see that nobody else in this room sees?
+3. Stake out a position so specific it makes people uncomfortable
+4. Challenge the objective — what is everyone getting wrong?
 
-Be bold. Be provocative. Stake out a clear position that others can react to.
-Speak in your authentic voice — first person, direct, opinionated.
-Max 400 words. No YAML, no structured output. Just your argument.${designFirmContext}`;
+Your identity shapes your argument. Be who you are, loudly.
+First person. Direct. Under 400 words. No YAML.${designFirmContext}`;
 
   terminalLines.push({ text: `--- ${personas.architect} opens the debate ---`, time: new Date().toISOString(), type: 'phase' });
   onTerminalUpdate?.(terminalLines);
@@ -898,17 +897,14 @@ The Architect just made their opening argument:
 ${architectOutput.slice(0, 1500)}
 ---
 
-Now it's your turn. As the Builder, respond:
-1. What do you AGREE with in the Architect's position?
-2. What do you DISAGREE with? Be specific. Push back hard where you see problems.
-3. What practical constraints is the Architect ignoring?
-4. What is your counter-proposal or refinement?
+You are your persona. Respond to the Architect. Hour ${hour}.
+1. React as yourself — what in their argument fits your worldview?
+2. Where are they wrong? Push back from who YOU are
+3. What would you build and why does it matter to real people?
+4. Name the one thing they're overcomplicating
 
-You value simplicity above all. If the Architect is overcomplicating things, say so.
-If they're right, acknowledge it — but add what they're missing.
-Be direct. Be opinionated. Cut through any BS.
-Speak in your authentic voice — first person, direct.
-Max 400 words.${designFirmContext}`;
+Your craft and taste drive your argument. Be who you are.
+First person. Direct. Under 400 words.${designFirmContext}`;
 
   terminalLines.push({ text: `--- ${personas.builder} responds ---`, time: new Date().toISOString(), type: 'phase' });
   onTerminalUpdate?.(terminalLines);
@@ -933,17 +929,14 @@ BUILDER'S POSITION:
 ${builderOutput.slice(0, 1000)}
 ---
 
-Now it's your turn. As the Strategist:
-1. Who has the stronger position and WHY?
-2. What are BOTH of them missing about competitive positioning?
-3. What would make judges remember this over every other team's submission?
-4. Where is the strategic advantage that neither has articulated?
-5. What is your recommendation for the final direction?
+You are your persona. Assess both positions. Hour ${hour}.
+1. Who's right and who's wrong — from YOUR strategic lens?
+2. What are they both blind to about winning?
+3. What makes judges remember THIS over nine other teams?
+4. Your one recommendation — decisive, not diplomatic
 
-Think about winning. Think about differentiation. Think about what makes judges say "wow."
-Be ruthlessly strategic. If both teammates are thinking too small, say so.
-Speak in your authentic voice — first person, direct, opinionated.
-Max 400 words.${designFirmContext}`;
+Your strategy comes from who you are. Think like yourself.
+First person. Direct. Under 400 words.${designFirmContext}`;
 
   terminalLines.push({ text: `--- ${personas.strategist} weighs in ---`, time: new Date().toISOString(), type: 'phase' });
   onTerminalUpdate?.(terminalLines);
@@ -973,11 +966,11 @@ STRATEGIST (${personas.strategist}):
 ${strategistOutput.slice(0, 800)}
 ---
 
-As Coordinator, produce the debate summary:
-1. Where did the team AGREE?
-2. Where is there genuine DISAGREEMENT? (Don't smooth this over — capture the tension)
-3. What is the emerging direction?
-4. What must be resolved in the next phase?
+Synthesize. Don't smooth over tension — capture it.
+1. Where do they agree?
+2. Where is genuine disagreement? Keep the friction.
+3. Emerging direction
+4. What must be resolved next?
 
 Produce a debate-note.yaml with these fields:
 - hour, team_id, phase, topic
